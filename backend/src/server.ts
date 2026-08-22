@@ -1,9 +1,9 @@
-import app from "./app.js";
+import { startupApplication } from "./startup.js";
 
-const PORT= process.env.PORT || 3000;
-
-const server = app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
-
-export default server;
+startupApplication()
+.catch((error: unknown) => {
+    if(error instanceof Error) {
+        console.error(error.message);
+    }
+    process.exit(1);
+})
