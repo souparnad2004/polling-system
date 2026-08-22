@@ -1,9 +1,33 @@
-import { startupApplication } from "./startup.js";
+import {IncomingMessage, Server, ServerResponse} from "node:http";
 
-startupApplication()
+import { startupApplication } from "./startup.js";
+import { pool } from "./database/client.js";
+
+let server: Server<typeof IncomingMessage, typeof ServerResponse>;
+
+async function bootstrap(): Promise<void> {
+    server = await startupApplication();
+}
+
+async function shutdown(signal: string): Promise<void> {
+    console.log(`Received ${signal}, shutting down...`);
+
+    if(server) {
+        server.close();
+    }
+
+    await pool.end();
+
+    process.exit(0);
+}
+
+process.on("SIGINT", () => shutdown("SIGINT"));
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+
+bootstrap()
 .catch((error: unknown) => {
     if(error instanceof Error) {
         console.error(error.message);
     }
     process.exit(1);
-})
+});
