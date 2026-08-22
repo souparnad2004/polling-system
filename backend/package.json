@@ -8,8 +8,9 @@
     "dev": "tsx watch --env-file=../.env src/server.ts",
     "build": "tsc",
     "typecheck": "tsc --noEmit",
-    "db:generate": "drizzle-kit --env-file=../.env ./node_modules/drizzle-kit/bin.cjs generate",
-    "db:migrate": "drizzle-kit --env-file=../.env ./node_modules/drizzle-kit/bin.cjs migrate"
+    "db:generate": "node --env-file=../.env ./node_modules/drizzle-kit/bin.cjs generate",
+    "db:migrate": "node --env-file=../.env ./node_modules/drizzle-kit/bin.cjs migrate",
+    "db:studio": "node --env-file=../.env ./node_modules/drizzle-kit/bin.cjs studio"
   },
   "keywords": [],
   "author": "",
