@@ -13,12 +13,12 @@ async function shutdown(signal: string): Promise<void> {
     console.log(`Received ${signal}, shutting down...`);
 
     if(server) {
-        server.close();
+        await new Promise<void>((resolve) => {
+            server.close(() => resolve());
+        });
     }
 
     await pool.end();
-
-    process.exit(0);
 }
 
 process.on("SIGINT", () => shutdown("SIGINT"));
