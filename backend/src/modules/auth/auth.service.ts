@@ -7,16 +7,10 @@ import { credentials } from "../../database/schema/credentials.js";
 import { ConflictError } from "../../shared/errors/conflict-error.js";
 import { eq } from "drizzle-orm";
 import { AuthenticationError } from "../../shared/errors/authentication-error.js";
-
-function isUniqueViolation(error: unknown, constraintName?: string): boolean {
-  const pgError = error as { code?: string; constraint?: string };
-  if (pgError?.code !== "23505") return false;
-  return constraintName ? pgError.constraint === constraintName : true;
-}
+import { isUniqueViolation } from "../../shared/errors/db-error.js";
 
 let dummyHash: string | null = null;
 
-// Returns a valid argon2id hash of a random string, used to equalize
 // response timing when the email doesn't exist (prevents user enumeration).
 async function getDummyHash(passwordService: PasswordService): Promise<string> {
   if (!dummyHash) {
