@@ -16,18 +16,13 @@ export class AuthService {
     constructor(private readonly passwordService: PasswordService) {}
 
     async register(input: RegisterInput): Promise<User> {
-        let displayName = undefined;
-        const email = input.email.trim().toLowerCase();
-        if(input.displayName) {
-             displayName = input.displayName.trim();
-        }
         const passwordHash = await this.passwordService.hash(input.password);
 
         try {
             return await db.transaction(async (tx) => {
                 const [user] = await tx.insert(users).values({
-                    email,
-                    displayName
+                    email: input.email,
+                    displayName: input.displayName,
                 }).returning({
                     id: users.id,
                     email: users.email,
