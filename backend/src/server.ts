@@ -1,9 +1,33 @@
-import app from "./app.js";
+import {IncomingMessage, Server, ServerResponse} from "node:http";
 
-const PORT= process.env.PORT || 3000;
+import { startupApplication } from "./startup.js";
+import { pool } from "./database/client.js";
 
-const server = app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+let server: Server<typeof IncomingMessage, typeof ServerResponse>;
+
+async function bootstrap(): Promise<void> {
+    server = await startupApplication();
+}
+
+async function shutdown(signal: string): Promise<void> {
+    console.log(`Received ${signal}, shutting down...`);
+
+    if(server) {
+        server.close();
+    }
+
+    await pool.end();
+
+    process.exit(0);
+}
+
+process.on("SIGINT", () => shutdown("SIGINT"));
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+
+bootstrap()
+.catch((error: unknown) => {
+    if(error instanceof Error) {
+        console.error(error.message);
+    }
+    process.exit(1);
 });
-
-export default server;
