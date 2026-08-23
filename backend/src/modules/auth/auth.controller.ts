@@ -1,7 +1,6 @@
 import type { Request, Response } from "express";
 import { PasswordService } from "./password.service.js";
 import { AuthService } from "./auth.service.js";
-import type { RegisterInput } from "./auth.schema.js";
 import { SessionService } from "./session.service.js";
 import { SESSION_COOKIE_NAME } from "./auth.constants.js";
 import { UnauthorizedError } from "../../shared/errors/unauthorized-error.js";
@@ -19,8 +18,7 @@ const cookieOptions = {
 };
 
 export async function register(req: Request, res: Response): Promise<void> {
-    const input = req.body as RegisterInput;
-    const user = await authService.register(input);
+    const user = await authService.register(req.body);
     const session = await sessionService.create(user.id);
 
     res.cookie(SESSION_COOKIE_NAME, session.token, {
@@ -28,6 +26,18 @@ export async function register(req: Request, res: Response): Promise<void> {
         expires: session.expiresAt,
     });
     res.status(201).json({ user });
+}
+
+export async function login(req: Request, res: Response): Promise<void> {
+    const user = await authService.login(req.body);
+
+    const session = await sessionService.create(user.id);
+
+    res.cookie(SESSION_COOKIE_NAME, session.token, {
+        ...cookieOptions,
+        expires: session.expiresAt,
+    });
+    res.status(200).json({ user });
 }
 
 export function getCurrentUser(req: Request, res: Response): void {

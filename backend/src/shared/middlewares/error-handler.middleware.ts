@@ -1,13 +1,8 @@
-import type { ErrorRequestHandler, Request, Response } from "express";
+import type { ErrorRequestHandler } from "express";
 import { AppError } from "../errors/app-error.js";
 import { ZodError } from "zod";
 
-export const errorHandler: ErrorRequestHandler = (
-    err: unknown,
-    _req: Request,
-    res: Response,
-    next
-) => {
+export const errorHandler: ErrorRequestHandler = (err: unknown, _req, res, next) => {
     if (res.headersSent) {
         next(err);
         return;
