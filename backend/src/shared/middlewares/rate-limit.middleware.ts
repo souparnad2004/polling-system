@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import { RateLimitEntry } from "../types/rete-limit.js";
+import type { RateLimitEntry } from "../types/rate-limit.js";
 
 const WINDOW_MS = 60_000;
 const MAX_ATTEMPT = 5;

@@ -1,14 +1,9 @@
 import type { Request, Response } from "express";
-import { PasswordService } from "./password.service.js";
-import { AuthService } from "./auth.service.js";
-import { SessionService } from "./session.service.js";
 import { SESSION_COOKIE_NAME } from "./auth.constants.js";
 import { UnauthorizedError } from "../../shared/errors/unauthorized-error.js";
 import { env } from "../../config/env.js";
-
-const passwordService = new PasswordService();
-const authService = new AuthService(passwordService);
-const sessionService = new SessionService();
+import type { AuthService } from "./auth.service.js";
+import type { SessionService } from "./session.service.js";
 
 const cookieOptions = {
     httpOnly: true,
@@ -17,18 +12,27 @@ const cookieOptions = {
     path: "/",
 };
 
-export async function register(req: Request, res: Response): Promise<void> {
+type AuthControllerDependencies = {
+    authService: AuthService;
+    sessionService: SessionService;
+};
+
+export function createAuthController({
+    authService,
+    sessionService,
+}: AuthControllerDependencies) {
+  async function register(req: Request, res: Response): Promise<void> {
     const user = await authService.register(req.body);
-    const session = await sessionService.create(user.id);
+        const session = await sessionService.create(user.id);
 
     res.cookie(SESSION_COOKIE_NAME, session.token, {
         ...cookieOptions,
         expires: session.expiresAt,
     });
-    res.status(201).json({ user });
-}
+        res.status(201).json({ user });
+    }
 
-export async function login(req: Request, res: Response): Promise<void> {
+    async function login(req: Request, res: Response): Promise<void> {
     const user = await authService.login(req.body);
 
     const session = await sessionService.create(user.id);
@@ -37,23 +41,34 @@ export async function login(req: Request, res: Response): Promise<void> {
         ...cookieOptions,
         expires: session.expiresAt,
     });
-    res.status(200).json({ user });
-}
+        res.status(200).json({ user });
+    }
 
-export function getCurrentUser(req: Request, res: Response): void {
+    function getCurrentUser(req: Request, res: Response): void {
     if (!req.user) throw new UnauthorizedError();
 
+    // Match the PublicUser shape returned by register/login:
+    // `updatedAt` is a server-internal timestamp and is intentionally omitted.
     res.status(200).json({
-        user: req.user,
+        user: {
+            id: req.user.id,
+            email: req.user.email,
+            displayName: req.user.displayName,
+            status: req.user.status,
+            createdAt: req.user.createdAt,
+        },
     });
-}
+    }
 
-export async function logout(req: Request, res: Response): Promise<void> {
+    async function logout(req: Request, res: Response): Promise<void> {
     const token = req.cookies?.[SESSION_COOKIE_NAME];
 
     if (token) await sessionService.revoke(token);
 
     res.clearCookie(SESSION_COOKIE_NAME, cookieOptions);
 
-    res.status(204).end();
+        res.status(204).end();
+    }
+
+    return { register, login, getCurrentUser, logout };
 }

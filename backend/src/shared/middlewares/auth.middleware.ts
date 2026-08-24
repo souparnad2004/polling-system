@@ -1,24 +1,23 @@
 import type { Request, Response, NextFunction } from "express";
 
 import { SESSION_COOKIE_NAME } from "../../modules/auth/auth.constants.js";
-import { SessionService } from "../../modules/auth/session.service.js";
+import type { SessionService } from "../../modules/auth/session.service.js";
 import { UnauthorizedError } from "../errors/unauthorized-error.js";
 
-const sessionService = new SessionService();
+export function createRequireAuthentication(sessionService: SessionService) {
+  return async function requireAuthentication(
+    req: Request,
+    _res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const token = req.cookies?.[SESSION_COOKIE_NAME];
 
-export async function requireAuthentication(
-  req: Request,
-  _res: Response,
-  next: NextFunction,
-): Promise<void> {
-  try {
-    const token = req.cookies?.[SESSION_COOKIE_NAME];
+      if (!token) {
+        throw new UnauthorizedError();
+      }
 
-    if (!token) {
-      throw new UnauthorizedError();
-    }
-
-    const user = await sessionService.getUserByToken(token);
+      const user = await sessionService.getUserByToken(token);
 
     if (!user) {
       throw new UnauthorizedError(
@@ -35,8 +34,9 @@ export async function requireAuthentication(
 
     req.user = user;
 
-    next();
-  } catch (error) {
-    next(error);
-  }
+      next();
+    } catch (error) {
+      next(error);
+    }
+  };
 }
