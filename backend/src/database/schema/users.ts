@@ -1,4 +1,8 @@
+import { relations } from "drizzle-orm";
 import { pgEnum, pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import { credentials } from "./credentials.js";
+import { sessions } from "./sessions.js";
+import { polls } from "./polls.js";
 
 export const statusEnum = pgEnum("status", ["active", "inactive"]);
 
@@ -13,3 +17,13 @@ export const users = pgTable("users", {
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
+
+export const usersRelations = relations(users, ({one, many}) => ({
+    credentials: one(credentials, {
+        fields: [users.id],
+        references: [credentials.userId]
+    }),
+    sessions: many(sessions),
+
+    polls: many(polls),
+}))

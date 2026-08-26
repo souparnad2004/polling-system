@@ -1,11 +1,12 @@
 import { index, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { users } from "./users.js";
+import { relations } from "drizzle-orm";
 
 export const sessions = pgTable(
   "sessions",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    userId: uuid("user_id")
+    userId: uuid("user_id").unique()
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     tokenHash: text("token_hash").notNull().unique(),
@@ -26,3 +27,10 @@ export const sessions = pgTable(
 
 export type Session = typeof sessions.$inferSelect;
 export type NewSession = typeof sessions.$inferInsert;
+
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+  user: one(users, {
+    fields: [sessions.userId],
+    references: [users.id],
+  }),
+}));
