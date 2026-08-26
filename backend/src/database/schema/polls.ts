@@ -6,9 +6,9 @@ export const statusEnum = pgEnum("status", ["draft", "published", "closed"])
 
 export const polls = pgTable("polls", {
     id: uuid("id").defaultRandom().primaryKey(),
-    userId: uuid("user_id").notNull().unique().references(() => users.id, {onDelete: "cascade"}),
+    userId: uuid("user_id").notNull().references(() => users.id, {onDelete: "cascade"}),
     title: text("title").notNull(),
-    description: text("description").notNull(),
+    description: text("description"),
     status: statusEnum().notNull().default("draft"),
     createdAt: timestamp("created_at", {withTimezone: true}).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", {withTimezone: true}).notNull().defaultNow().$onUpdate(() => new Date)

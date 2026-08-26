@@ -4,15 +4,15 @@ import { startupApplication } from "./startup.js";
 import { pool } from "./database/client.js";
 
 let server: Server<typeof IncomingMessage, typeof ServerResponse>;
-let isShuttinDown = false;
+let isShuttingDown = false;
 
 async function bootstrap(): Promise<void> {
     server = await startupApplication();
 }
 
 async function shutdown(signal: string): Promise<void> {
-    if(isShuttinDown) return;
-    isShuttinDown = true;
+    if (isShuttingDown) return;
+    isShuttingDown = true;
     console.log(`Received ${signal}, shutting down...`);
 
     if(server) {
