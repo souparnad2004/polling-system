@@ -15,10 +15,10 @@ export function createPollController(pollService: PollService) {
     }
 
     async function getPoll(req: Request<{pollId: string}>, res: Response) {
-        if(!req.user) throw new UnauthorizedError();
-
         const { pollId } = req.params;
 
+        // Public polls can be viewed by anyone; drafts are only accessible to
+        // their owner. Ownership/visibility is enforced in pollService.
         const poll = await pollService.getPoll(pollId, req.user?.id);
     
         res.status(200).json({
@@ -26,5 +26,16 @@ export function createPollController(pollService: PollService) {
         })
     }
 
-    return {createPoll, getPoll};
+    async function updatePoll(req: Request<{pollId: string}>, res: Response) {
+        const {pollId} = req.params;
+        if(!req.user) throw new UnauthorizedError();
+
+        const updatedPoll = await pollService.updatePoll(pollId, req.user.id, req.body);
+
+        res.status(200).json({
+            updatedPoll
+        })
+    }
+
+    return {createPoll, getPoll, updatePoll};
 }

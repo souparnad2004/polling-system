@@ -1,15 +1,23 @@
 import type { Request, Response, NextFunction } from "express";
 import type { z } from "zod";
 
-export const validate = <T>(schema: z.ZodType<T>) =>
+type RequestSource = "body" | "params" | "query";
+
+export const validate = <T>(
+    schema: z.ZodType<T>,
+    source: RequestSource = "body"
+) =>
     async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
-        const result = schema.safeParse(req.body);
+        const result = schema.safeParse(req[source]);
 
         if (!result.success) {
             next(result.error);
             return;
         }
 
-        req.body = result.data;
+        if (source === "body") {
+            req.body = result.data;
+        }
+
         next();
     };

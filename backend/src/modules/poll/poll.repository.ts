@@ -2,6 +2,8 @@ import { asc, eq } from "drizzle-orm";
 import { db } from "../../database/client.js";
 import { pollOptions } from "../../database/schema/pollOptions.js";
 import { polls } from "../../database/schema/polls.js";
+import { UpdatePollInput } from "./poll.schema.js";
+import { unescape } from "node:querystring";
 
 export type DatabaseTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
@@ -26,8 +28,9 @@ export class PollRepository  {
         ).returning()
     }
 
-    async findById(pollId: string) {
-        const pollResult = await db.select({
+    async findById(pollId: string, tx?: DatabaseTransaction) {
+        const query = tx ?? db;
+        const pollResult = await query.select({
             id: polls.id,
             userId: polls.userId,
             title: polls.title,
@@ -40,7 +43,7 @@ export class PollRepository  {
         const poll = pollResult[0];
         if(!poll) return null;
 
-        const options = await db.select({
+        const options = await query.select({
             id: pollOptions.id,
             pollId: pollOptions.pollId,
             option: pollOptions.option,
@@ -51,4 +54,19 @@ export class PollRepository  {
 
         return {...poll, options};
     }
+
+    async updatePoll(tx: DatabaseTransaction, pollId: string, input: UpdatePollInput) {
+        const result = await tx.update(polls).set({
+            ...(input.title !== undefined && {title: input.title}),
+            ...(input.description !== undefined && {description: input.description}),
+        }).where(eq(polls.id, pollId)).returning();
+
+        return result[0] ?? null;
+    }
+
+    async deleteOptions(tx: DatabaseTransaction, pollId: string) {
+        await tx.delete(pollOptions).where(eq(pollOptions.pollId, pollId));
+    }
+
+
 }

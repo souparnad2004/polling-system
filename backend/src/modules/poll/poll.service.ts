@@ -1,8 +1,9 @@
 import { db } from "../../database/client.js";
+import { ConflictError } from "../../shared/errors/conflict-error.js";
 import { ForbiddenError } from "../../shared/errors/forbidden-error.js";
 import { NotFoundError } from "../../shared/errors/not-found-error.js";
 import { PollRepository } from "./poll.repository.js";
-import { CreatePollInput } from "./poll.schema.js";
+import { CreatePollInput, UpdatePollInput } from "./poll.schema.js";
 
 export class PollService {
     constructor(private readonly pollRepository: PollRepository){}
@@ -24,8 +25,35 @@ export class PollService {
 
         const isPublic = poll.status === "published" || poll.status === "closed";
 
-        if(!isOwner && !isPublic) throw new ForbiddenError("You can not access this poll");
+        // Return 404 (rather than 403) for private polls the viewer doesn't own
+        // so private polls are indistinguishable from nonexistent ones.
+        if(!isOwner && !isPublic) throw new NotFoundError("poll not found");
 
         return poll;
+    }
+
+    async updatePoll(pollId: string, userId: string, input: UpdatePollInput) {
+        const poll = await this.pollRepository.findById(pollId);
+
+        if(!poll) throw new NotFoundError("poll not found");
+
+        if(poll.userId !== userId) throw new ForbiddenError("You do not own this poll");
+
+        if(poll.status !== "draft") throw new ConflictError("Only draft polls can be edited");
+
+        return db.transaction(async (tx) => {
+            if (input.options) {
+                await this.pollRepository.deleteOptions(tx, pollId);
+                await this.pollRepository.createOptions(tx, {pollId, options: input.options});
+            }
+
+            await this.pollRepository.updatePoll(tx, pollId, input);
+
+            const updatedPoll = await this.pollRepository.findById(pollId, tx);
+
+            if (!updatedPoll) throw new NotFoundError("poll not found");
+
+            return updatedPoll;
+        })
     }
 }
