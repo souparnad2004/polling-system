@@ -56,4 +56,23 @@ export class PollService {
             return updatedPoll;
         })
     }
+
+
+    async publishPoll(pollId: string, userId: string) {
+        const poll = await this.pollRepository.findById(pollId);
+
+        if(!poll) throw new NotFoundError("poll not found");
+
+        if(poll.userId !== userId) throw new ForbiddenError("You do not own this poll");
+
+        if(poll.status !== "draft") throw new ConflictError("Only draft polls can be published");
+
+        if(poll.options.length < 2 || poll.options.length > 10) throw new ConflictError("Poll must have between 2 and 10 options");
+
+        const published = await this.pollRepository.publishPoll(pollId);
+
+        if(!published) throw new ConflictError("Poll could not be published");
+
+        return published;
+    }
 }

@@ -1,4 +1,4 @@
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { db } from "../../database/client.js";
 import { pollOptions } from "../../database/schema/pollOptions.js";
 import { polls } from "../../database/schema/polls.js";
@@ -68,5 +68,10 @@ export class PollRepository  {
         await tx.delete(pollOptions).where(eq(pollOptions.pollId, pollId));
     }
 
+    async publishPoll(pollId: string) {
+        const result = await db.update(polls).set({status: "published"}).where(and(eq(polls.id, pollId), eq(polls.status, "draft"))).returning();
+
+        return result[0] ?? null;
+    }
 
 }
