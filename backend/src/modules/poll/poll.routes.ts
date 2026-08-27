@@ -18,6 +18,7 @@ export function createPollRouter({pollService ,sessionService}: PollRoutesDepend
 
     router.use(requireAuthentication);
     router.post("/create", validate(createPollSchema), pollController.createPoll);
+    router.get("/get/:pollId", pollController.getPoll);
 
     return router;
 }

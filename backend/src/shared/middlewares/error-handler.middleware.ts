@@ -13,7 +13,7 @@ export const errorHandler: ErrorRequestHandler = (err: unknown, _req, res, next)
             error: {
                 code: "VALIDATION_ERROR",
                 message: "Request validation error",
-                details: z.treeifyError(err),
+                details: z.flattenError(err),
             },
         });
         return;

@@ -14,5 +14,17 @@ export function createPollController(pollService: PollService) {
         })
     }
 
-    return {createPoll};
+    async function getPoll(req: Request<{pollId: string}>, res: Response) {
+        if(!req.user) throw new UnauthorizedError();
+
+        const { pollId } = req.params;
+
+        const poll = await pollService.getPoll(pollId, req.user?.id);
+    
+        res.status(200).json({
+            poll
+        })
+    }
+
+    return {createPoll, getPoll};
 }
