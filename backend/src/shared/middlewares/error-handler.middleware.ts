@@ -1,6 +1,6 @@
 import type { ErrorRequestHandler } from "express";
 import { AppError } from "../errors/app-error.js";
-import { ZodError } from "zod";
+import z, { ZodError } from "zod";
 
 export const errorHandler: ErrorRequestHandler = (err: unknown, _req, res, next) => {
     if (res.headersSent) {
@@ -13,7 +13,7 @@ export const errorHandler: ErrorRequestHandler = (err: unknown, _req, res, next)
             error: {
                 code: "VALIDATION_ERROR",
                 message: "Request validation error",
-                details: err.flatten(),
+                details: z.treeifyError(err),
             },
         });
         return;

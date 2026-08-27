@@ -1,16 +1,29 @@
 import { Router } from "express";
 
-import { getCurrentUser, login, logout, register } from "./auth.controller.js";
+import { createAuthController } from "./auth.controller.js";
 import { validate } from "../../shared/middlewares/validate.middleware.js";
 import { loginSchema, registerSchema } from "./auth.schema.js";
-import { requireAuthentication } from "../../shared/middlewares/auth.middleware.js";
+import { createRequireAuthentication } from "../../shared/middlewares/auth.middleware.js";
 import { loginRateLimit } from "../../shared/middlewares/rate-limit.middleware.js";
+import type { AuthService } from "./auth.service.js";
+import type { SessionService } from "./session.service.js";
 
-const router: Router = Router();
+type AuthRouteDependencies = {
+	authService: AuthService;
+	sessionService: SessionService;
+};
 
-router.post("/register", validate(registerSchema), register);
-router.post("/login", loginRateLimit,  validate(loginSchema), login);
-router.get("/me", requireAuthentication, getCurrentUser);
-router.post("/logout", requireAuthentication, logout);
+export function createAuthRouter({authService, sessionService}: AuthRouteDependencies): Router {
+	const router: Router = Router();
+	const controller = createAuthController({authService, sessionService});
+	const requireAuthentication = createRequireAuthentication(
+		sessionService
+	);
 
-export default router;
+	router.post("/register", validate(registerSchema), controller.register);
+	router.post("/login", loginRateLimit, validate(loginSchema), controller.login);
+	router.get("/me", requireAuthentication, controller.getCurrentUser);
+	router.post("/logout", requireAuthentication, controller.logout);
+
+	return router;
+}

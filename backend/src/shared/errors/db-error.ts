@@ -1,4 +1,3 @@
-// shared/db/errors.ts (or database/errors.ts, wherever your other db helpers live)
 export function isUniqueViolation(
   error: unknown,
   constraintName?: string,

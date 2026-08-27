@@ -1,5 +1,6 @@
 import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { users } from "./users.js";
+import { relations } from "drizzle-orm";
 
 export const credentials = pgTable("credentials", {
     id: uuid("id").defaultRandom().primaryKey(),
@@ -12,3 +13,10 @@ export const credentials = pgTable("credentials", {
 
 export type Credential = typeof credentials.$inferSelect;
 export type NewCredential = typeof credentials.$inferInsert;
+
+export const credentialsRelations = relations(credentials, ({one}) => ({
+    user: one(users, {
+        fields: [credentials.userId],
+        references: [users.id]
+    })
+}))

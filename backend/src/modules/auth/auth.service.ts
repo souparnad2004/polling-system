@@ -1,103 +1,93 @@
 import { randomBytes } from "node:crypto";
 import { PasswordService } from "./password.service.js";
+import { AuthRepository } from "./auth.repository.js";
 import { db } from "../../database/client.js";
 import type { LoginInput, PublicUser, RegisterInput } from "./auth.schema.js";
-import { type User, users } from "../../database/schema/users.js";
-import { credentials } from "../../database/schema/credentials.js";
+import type { User } from "../../database/schema/users.js";
 import { ConflictError } from "../../shared/errors/conflict-error.js";
-import { eq } from "drizzle-orm";
 import { AuthenticationError } from "../../shared/errors/authentication-error.js";
 import { isUniqueViolation } from "../../shared/errors/db-error.js";
 
-let dummyHash: string | null = null;
-
-// response timing when the email doesn't exist (prevents user enumeration).
-async function getDummyHash(passwordService: PasswordService): Promise<string> {
-  if (!dummyHash) {
-    dummyHash = await passwordService.hash(randomBytes(32).toString("hex"));
-  }
-  return dummyHash;
-}
-
 export class AuthService {
-  constructor(private readonly passwordService: PasswordService) {}
+    private dummyHash: string | null = null;
 
-  private toPublicUser(user: User): PublicUser {
-    return {
-      id: user.id,
-      email: user.email,
-      displayName: user.displayName,
-      status: user.status,
-      createdAt: user.createdAt,
-    };
-  }
+    constructor(
+        private readonly passwordService: PasswordService,
+        private readonly authRepository: AuthRepository,
+    ) {}
 
-  async register(input: RegisterInput): Promise<PublicUser> {
-    const passwordHash = await this.passwordService.hash(input.password);
+    // Response timing when the email doesn't exist (prevents user enumeration).
+    // Cached per-instance so the argon2 cost is paid only once.
+    private async getDummyHash(): Promise<string> {
+        if (!this.dummyHash) {
+            this.dummyHash = await this.passwordService.hash(
+                randomBytes(32).toString("hex"),
+            );
+        }
+        return this.dummyHash;
+    }
 
-    try {
-      return await db.transaction(async (tx) => {
-        const [user] = await tx
-          .insert(users)
-          .values({
-            email: input.email,
-            displayName: input.displayName,
-          })
-          .returning({
-            id: users.id,
-            email: users.email,
-            displayName: users.displayName,
-            status: users.status,
-            createdAt: users.createdAt,
-            updatedAt: users.updatedAt,
-          });
+    private toPublicUser(user: User): PublicUser {
+        return {
+            id: user.id,
+            email: user.email,
+            displayName: user.displayName,
+            status: user.status,
+            createdAt: user.createdAt,
+        };
+    }
 
-        await tx.insert(credentials).values({
-          userId: user.id,
-          passwordHash,
-        });
+    async register(input: RegisterInput): Promise<PublicUser> {
+        const passwordHash = await this.passwordService.hash(input.password);
+
+        try {
+            return await db.transaction(async (tx) => {
+                const user = await this.authRepository.createUser(tx, {
+                    email: input.email,
+                    displayName: input.displayName,
+                });
+
+                await this.authRepository.createCredential(tx, {
+                    userId: user.id,
+                    passwordHash,
+                });
+
+                return this.toPublicUser(user);
+            });
+        } catch (error) {
+            if (isUniqueViolation(error, "users_email_unique")) {
+                throw new ConflictError("An account with this email already exists");
+            }
+            throw error;
+        }
+    }
+
+    async login(input: LoginInput): Promise<PublicUser> {
+        const user = await this.authRepository.findUserByEmail(input.email);
+
+        const credential = user
+            ? await this.authRepository.findCredentialByUserId(user.id)
+            : null;
+
+        // Always run argon2.verify() (against the real hash, or a dummy hash for
+        // unknown emails) so response timing doesn't reveal whether an email is
+        // registered.
+        const passwordHash = credential?.passwordHash ?? (await this.getDummyHash());
+
+        const passwordMatches = await this.passwordService.verify(
+            input.password,
+            passwordHash,
+        );
+
+        if (
+            !user ||
+            user.status !== "active" ||
+            !credential ||
+            !passwordMatches
+        ) {
+            throw new AuthenticationError();
+        }
 
         return this.toPublicUser(user);
-      });
-    } catch (error) {
-      if (isUniqueViolation(error, "users_email_unique")) {
-        throw new ConflictError("An account with this email already exists");
-      }
-      throw error;
     }
-  }
-
-  async login(input: LoginInput): Promise<PublicUser> {
-    const user = await db.query.users.findFirst({
-      where: eq(users.email, input.email),
-    });
-
-    const credential = user
-      ? await db.query.credentials.findFirst({
-          where: eq(credentials.userId, user.id),
-        })
-      : null;
-
-    // Always run argon2.verify() (against the real hash, or a dummy hash for
-    // unknown emails) so response timing doesn't reveal whether an email is
-    // registered.
-    const passwordHash =
-      credential?.passwordHash ?? (await getDummyHash(this.passwordService));
-
-    const passwordMatches = await this.passwordService.verify(
-      input.password,
-      passwordHash,
-    );
-
-    if (
-      !user ||
-      user.status !== "active" ||
-      !credential ||
-      !passwordMatches
-    ) {
-      throw new AuthenticationError();
-    }
-
-    return this.toPublicUser(user);
-  }
 }
