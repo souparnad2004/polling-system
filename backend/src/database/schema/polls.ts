@@ -2,14 +2,14 @@ import { index, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-co
 import { users } from "./users.js";
 import { relations } from "drizzle-orm";
 
-export const statusEnum = pgEnum("status", ["draft", "published", "closed"])
+export const pollStatusEnum = pgEnum("poll_status", ["draft", "published", "closed"])
 
 export const polls = pgTable("polls", {
     id: uuid("id").defaultRandom().primaryKey(),
     userId: uuid("user_id").notNull().references(() => users.id, {onDelete: "cascade"}),
     title: text("title").notNull(),
     description: text("description"),
-    status: statusEnum().notNull().default("draft"),
+    status: pollStatusEnum("status").notNull().default("draft"),
     createdAt: timestamp("created_at", {withTimezone: true}).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", {withTimezone: true}).notNull().defaultNow().$onUpdate(() => new Date)
 },(t) => [

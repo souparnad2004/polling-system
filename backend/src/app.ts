@@ -6,6 +6,7 @@ import { errorHandler } from "./shared/middlewares/error-handler.middleware.js";
 import { dependencies } from "./container.js";
 import { NotFoundRoute } from "./shared/middlewares/not-found-route.middlware.js";
 import { createPollRouter } from "./modules/poll/poll.routes.js";
+import { createVoteRouter } from "./modules/vote/vote.routes.js";
 
 export function createApp(appDependencies = dependencies): express.Express {
     const app: express.Express = express();
@@ -19,7 +20,7 @@ export function createApp(appDependencies = dependencies): express.Express {
 
     app.use("/api/auth", createAuthRouter(appDependencies));
     app.use("/api/user", createUserRouter(appDependencies));
-    app.use("/api/poll", createPollRouter(appDependencies));
+    app.use("/api/poll", [createPollRouter(appDependencies), createVoteRouter(appDependencies)]);
 
     app.use(NotFoundRoute);
     app.use(errorHandler);

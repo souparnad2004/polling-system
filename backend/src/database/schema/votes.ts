@@ -7,14 +7,14 @@ import { relations } from "drizzle-orm";
 export const votes = pgTable("votes", {
     id: uuid("id").defaultRandom().primaryKey(),
     pollId: uuid("poll_id").notNull().references(() => polls.id, {onDelete: "cascade"}),
-    userId: uuid("user_id").notNull().references(() => users.id, {onDelete: "cascade"}),
+    userId: uuid("user_id").references(() => users.id, {onDelete: "cascade"}),
     optionId: uuid("option_id").notNull().references(() => pollOptions.id, {onDelete: "cascade"}),
-    voter_token: uuid("voter_token").notNull().unique(),
+    voterToken: uuid("voter_token").unique(),
     createdAt: timestamp("created_at", {withTimezone: true}).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", {withTimezone: true}).notNull().defaultNow().$onUpdate(() => new Date()),
 },(t) => [
     unique("votes_poll_id_user_id_unique").on(t.pollId, t.userId),
-    unique("votes_poll_id_voter_token_unique").on(t.pollId, t.voter_token)
+    unique("votes_poll_id_voter_token_unique").on(t.pollId, t.voterToken)
 ])
 
 export type Vote = typeof votes.$inferSelect

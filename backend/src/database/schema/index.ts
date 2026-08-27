@@ -3,3 +3,4 @@ export { credentials, type Credential, type NewCredential } from "./credentials.
 export { sessions, type Session, type NewSession } from "./sessions.js"
 export { polls, type Poll, type NewPoll } from "./polls.js"
 export { pollOptions, type PollOption, type NewPollOption } from "./pollOptions.js"
+export { votes, type Vote, type NewVote } from "./votes.js"
