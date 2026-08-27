@@ -74,4 +74,10 @@ export class PollRepository  {
         return result[0] ?? null;
     }
 
+    async closePoll(pollId: string) {
+        const result = await db.update(polls).set({status: "closed"}).where(and(eq(polls.id, pollId), eq(polls.status, "published"))).returning();
+
+        return result[0] ?? null;
+    }
+
 }

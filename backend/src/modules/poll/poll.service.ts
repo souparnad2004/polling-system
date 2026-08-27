@@ -75,4 +75,20 @@ export class PollService {
 
         return published;
     }
+
+    async closePoll(pollId: string, userId: string) {
+        const poll = await this.pollRepository.findById(pollId);
+
+        if(!poll) throw new NotFoundError("poll not found");
+
+        if(poll.userId !== userId) throw new ForbiddenError("You do not own this poll");
+
+        if(poll.status !== "published") throw new ConflictError("Only published polls can be closed");
+
+        const closedPoll = await this.pollRepository.closePoll(pollId);
+
+        if(!closedPoll) throw new ConflictError("Poll could not be closed");
+
+        return closedPoll;
+    }
 }

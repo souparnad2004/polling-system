@@ -42,12 +42,23 @@ export function createPollController(pollService: PollService) {
         const {pollId} = req.params;
         if(!req.user) throw new UnauthorizedError();
 
-        const updatedPoll = await pollService.publishPoll(pollId, req.user.id);
+        const publishedPoll = await pollService.publishPoll(pollId, req.user.id);
 
         res.status(200).json({
-            updatedPoll
+            publishedPoll
         })
     }
 
-    return {createPoll, getPoll, updatePoll, publishPoll};
+    async function closePoll(req: Request<{pollId: string}>, res: Response) {
+        const {pollId} = req.params;
+        if(!req.user) throw new UnauthorizedError();
+
+        const closedPoll = await pollService.closePoll(pollId, req.user.id);
+
+        res.status(200).json({
+            closedPoll
+        })
+    }
+
+    return {createPoll, getPoll, updatePoll, publishPoll, closePoll};
 }
