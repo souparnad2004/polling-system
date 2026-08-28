@@ -26,6 +26,16 @@ export function createPollController(pollService: PollService) {
         })
     }
 
+    async function getPolls(req: Request, res: Response) {
+        if(!req.user) throw new UnauthorizedError();
+
+        const polls = await pollService.getPolls(req.user.id);
+
+        res.status(200).json({
+            polls
+        });
+    }
+
     async function updatePoll(req: Request<{pollId: string}>, res: Response) {
         const {pollId} = req.params;
         if(!req.user) throw new UnauthorizedError();
@@ -60,5 +70,5 @@ export function createPollController(pollService: PollService) {
         })
     }
 
-    return {createPoll, getPoll, updatePoll, publishPoll, closePoll};
+    return {createPoll, getPolls, getPoll, updatePoll, publishPoll, closePoll};
 }

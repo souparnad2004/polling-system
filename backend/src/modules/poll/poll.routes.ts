@@ -30,6 +30,11 @@ export function createPollRouter({
     pollController.createPoll,
   );
   router.get(
+    "/",
+    requireAuthentication,
+    pollController.getPolls,
+  );
+  router.get(
     "/:pollId",
     validate(pollIdParamsSchema, "params"),
     pollController.getPoll,
