@@ -70,5 +70,16 @@ export function createPollController(pollService: PollService) {
         })
     }
 
-    return {createPoll, getPolls, getPoll, updatePoll, publishPoll, closePoll};
+    async function deletePoll(req: Request<{pollId: string}>, res: Response) {
+        const {pollId} = req.params;
+        if(!req.user) throw new UnauthorizedError();
+        
+        await pollService.deletePoll(pollId, req.user.id);
+
+        res.status(200).json({
+            message: "Poll deleted Successfully"
+        })
+    }
+
+    return {createPoll, getPolls, getPoll, updatePoll, publishPoll, closePoll, deletePoll};
 }

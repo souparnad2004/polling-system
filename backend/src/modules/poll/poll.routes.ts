@@ -59,5 +59,12 @@ export function createPollRouter({
     pollController.closePoll,
   );
 
+  router.delete(
+    "/:pollId",
+    requireAuthentication,
+    validate(pollIdParamsSchema, "params"),
+    pollController.deletePoll,
+  );
+
   return router;
 }

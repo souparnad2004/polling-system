@@ -117,4 +117,8 @@ export class PollRepository  {
         return result[0] ?? null;
     }
 
+    async deletePoll(pollId: string) {
+        await db.delete(polls).where(eq(polls.id, pollId)); 
+    }
+
 }

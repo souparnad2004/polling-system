@@ -19,7 +19,7 @@ export interface PollResultOption {
     voteCount: number;
 }
 
-export interface PollResult {
+export interface PollResults {
     pollId: string;
     totalVotes: number;
     options: PollResultOption[]
@@ -30,8 +30,8 @@ export async function getPoll(pollId: string):Promise<Poll> {
     return response.poll;
 }
 
-export async function getPollResults(pollId: string):Promise<PollResult> {
-    const response = await apiFetch<{result: PollResult}>(`/api/polls/${pollId}/results`);
+export async function getPollResults(pollId: string):Promise<PollResults> {
+    const response = await apiFetch<{result: PollResults}>(`/api/polls/${pollId}/results`);
     return response.result;
 }
 
@@ -49,4 +49,71 @@ export async function createVote(pollId: string, optionId: string) {
 export async function getPolls(): Promise<Poll[]> {
     const response = await apiFetch<{polls: Poll[]}>(`/api/polls`);
     return response.polls;
+}
+
+export interface CreatePollInput {
+  title: string;
+  description?: string;
+  options: string[];
+}
+
+export async function createPoll(
+  input: CreatePollInput,
+): Promise<Poll> {
+  const response = await apiFetch<{
+    poll: Poll;
+  }>("api/polls", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+
+  return response.poll;
+}
+
+
+export interface updatePollInput{
+    title?: string;
+    description?: string;
+}
+
+export async function updatePoll(pollId: string, input: updatePollInput):Promise<Poll> {
+    const response = await apiFetch<{poll: Poll}>(`api/polls/${pollId}`, {
+        method: "PATCH",
+        body: JSON.stringify(input),
+    });
+
+    return response.poll;
+}
+
+export async function publishPoll(pollId: string):Promise<Poll> {
+    const response = await apiFetch<{poll: Poll}>(`api/polls/${pollId}/publish`, {
+        method: "POST",
+    });
+
+    return response.poll;
+}
+
+
+
+export async function closePoll(
+  pollId: string,
+): Promise<Poll> {
+  const response = await apiFetch<{
+    poll: Poll;
+  }>(`api/polls/${pollId}/close`, {
+    method: "POST",
+  });
+
+  return response.poll;
+}
+
+export async function deletePoll(
+  pollId: string,
+): Promise<void> {
+  await apiFetch<void>(
+    `/polls/${pollId}`,
+    {
+      method: "DELETE",
+    },
+  );
 }

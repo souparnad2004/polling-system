@@ -95,4 +95,14 @@ export class PollService {
 
         return closedPoll;
     }
+
+    async deletePoll(pollId: string, userId: string) {
+        const poll = await this.pollRepository.findById(pollId);
+
+        if(!poll) throw new NotFoundError("poll not found");
+
+        if(poll.userId !== userId) throw new ForbiddenError("You do not own this poll");
+
+        return this.pollRepository.deletePoll(pollId);
+    }
 }

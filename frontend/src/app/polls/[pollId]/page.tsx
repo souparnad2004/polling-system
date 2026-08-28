@@ -40,7 +40,7 @@ export default function PollPage({ params }: PollPageProps) {
         type: "success",
       });
       queryClient.invalidateQueries({
-        queryKey: ["poll-results", pollId],
+        queryKey: ["results", pollId],
       });
     },
     onError: () => {
@@ -53,27 +53,26 @@ export default function PollPage({ params }: PollPageProps) {
   });
 
   if (pollQuery.isLoading || resultsQuery.isLoading) {
-    return <div>Loading...</div>;
+    return <div className="mx-auto max-w-2xl p-6">Loading...</div>;
   }
 
   if (pollQuery.isError || resultsQuery.isError) {
-    return <div>Error</div>;
+    return <div className="mx-auto max-w-2xl p-6">Failed to load poll</div>;
   }
 
   if (!pollQuery.data || !resultsQuery.data) {
-    return <div>Not found</div>;
+    return <div >Not found</div>;
   }
 
   return (
     <main>
-      {pollQuery.data.options.map((option) => (
-        <PollDetail
-          key={option.id}
+      <PollDetail
           poll={pollQuery.data}
           results={resultsQuery.data}
-          onVote={async () => {await voteMutation.mutateAsync(option.id)}}
+          onVote={async (optionId) => {
+            await voteMutation.mutateAsync(optionId);
+          }}
         />
-      ))}
     </main>
   );
 }
