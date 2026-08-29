@@ -13,15 +13,18 @@ export default function HomePage() {
       </p>
 
       <div className="mt-6 flex items-center gap-3">
-        <Button variant="outline" render={<Link href="/auth/login" />}>
-          Sign in
-        </Button>
+        <Link href="/login">
+          <Button variant="outline">
+            Sign in
+          </Button>
+        </Link>
 
-        <Button render={<Link href="/auth/register" />}>
-          Create account
-        </Button>
+        <Link href="/register">
+          <Button>
+            Create Account
+          </Button>
+        </Link>
       </div>
     </main>
   );
 }
-

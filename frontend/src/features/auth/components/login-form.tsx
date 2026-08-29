@@ -15,77 +15,49 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/toast";
-import { login } from "../auth.api";
+import { LoginInput, loginSchema } from "../schemas/login.schema";
+import { useLogin } from "../hooks/useLogin";
 
-const loginSchema = z.object({
-  email: z
-    .string()
-    .trim()
-    .toLowerCase()
-    .pipe(
-      z
-        .email("Enter a valid email")
-        .max(320, "Email is too long"),
-    ),
-  password: z
-    .string()
-    .min(1, "Password is required")
-    .max(128, "Password is too long"),
-});
-
-type LoginFormData = z.infer<typeof loginSchema>;
-
-interface LoginFormProps {
+export type LoginFormProps = {
   onSuccess: () => void;
-}
+};
 
 export function LoginForm({ onSuccess }: LoginFormProps) {
+  const loginMutation = useLogin();
   const {
-    register: registerField,
+    register,
     handleSubmit,
-    formState: {
-      errors,
-      isSubmitting,
-    },
-  } = useForm<LoginFormData>({
+    formState: { errors },
+  } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
   });
 
-  async function onSubmit(data: LoginFormData) {
-    try {
-      await login({
-        email: data.email,
-        password: data.password,
-      });
+  const onSubmit = async (data: LoginInput) => {
+    loginMutation.mutate(data, {
+      onSuccess: () => {
+        onSuccess();
+      },
+      onError: (error) => {
+        toast.add({
+          title: "Error",
+          description: error.message,
+          type: "error",
+        });
+      },
+    });
+  };
 
-      onSuccess();
-    } catch {
-      toast.add({
-        title: "Error",
-        description: "Invalid email or password.",
-        type: "error",
-      });
-    }
-  }
+  const isLoading = loginMutation.isPending;
 
   return (
     <Card className="mx-auto w-full max-w-md">
       <CardHeader>
         <CardTitle>Welcome back</CardTitle>
-        <CardDescription>
-          Sign in to your account
-        </CardDescription>
+        <CardDescription>Sign in to your account</CardDescription>
       </CardHeader>
 
       <CardContent>
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="space-y-6"
-        >
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
 
@@ -94,13 +66,11 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
               type="email"
               placeholder="you@example.com"
               autoComplete="email"
-              {...registerField("email")}
+              {...register("email")}
             />
 
             {errors.email && (
-              <p className="text-sm text-destructive">
-                {errors.email.message}
-              </p>
+              <p className="text-sm text-destructive">{errors.email.message}</p>
             )}
           </div>
 
@@ -112,7 +82,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
               type="password"
               placeholder="Your password"
               autoComplete="current-password"
-              {...registerField("password")}
+              {...register("password")}
             />
 
             {errors.password && (
@@ -122,18 +92,24 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
             )}
           </div>
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isSubmitting}
-          >
-            {isSubmitting
-              ? "Signing in..."
-              : "Sign in"}
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            
+            {isLoading ? (
+              <>
+                
+                <span
+                  className="mr-2 size-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+                  aria-hidden="true"
+                />
+                Signing in...
+              </>
+            ) : (
+              "Sign in"
+            )}
           </Button>
 
           <p className="text-center text-sm text-muted-foreground">
-            Don&apos;t have an account?{" "}
+            Don&apos;t have an account?
             <Link
               href="/auth/register"
               className="font-medium text-primary hover:underline"

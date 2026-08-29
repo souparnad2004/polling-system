@@ -15,96 +15,56 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/toast";
-import { register } from "../auth.api";
-
-const registerSchema = z.object({
-  displayName: z
-    .string()
-    .trim()
-    .max(100, "Name is too long")
-    .optional(),
-  email: z
-    .string()
-    .trim()
-    .toLowerCase()
-    .pipe(
-      z
-        .email("Enter a valid email")
-        .max(320, "Email is too long"),
-    ),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .max(128, "Password is too long"),
-});
-
-type RegisterFormData = z.infer<typeof registerSchema>;
+import { RegisterInput, registerSchema } from "../schemas/register.schema";
+import { useRegister } from "../hooks/useRegister";
 
 interface RegisterFormProps {
   onSuccess: () => void;
 }
 
-export function RegisterForm({
-  onSuccess,
-}: RegisterFormProps) {
+export function RegisterForm({ onSuccess }: RegisterFormProps) {
+  const registerMutation = useRegister();
+
   const {
-    register: registerField,
+    register,
     handleSubmit,
-    formState: {
-      errors,
-      isSubmitting,
-    },
-  } = useForm<RegisterFormData>({
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
-    defaultValues: {
-      displayName: "",
-      email: "",
-      password: "",
-    },
   });
 
-  async function onSubmit(data: RegisterFormData) {
-    try {
-      await register({
-        email: data.email,
-        password: data.password,
-        displayName: data.displayName || undefined,
-      });
-
-      onSuccess();
-    } catch {
-      toast.add({
-        title: "Error",
-        description: "Failed to create account. Please try again.",
-        type: "error",
-      });
-    }
-  }
+  const onSubmit = async (data: RegisterInput) => {
+    registerMutation.mutate(data, {
+      onSuccess: () => {
+        onSuccess();
+      },
+      onError: (error) => {
+        toast.add({
+          title: "Error",
+          description: error.message,
+          type: "error",
+        });
+      },
+    })
+  };
 
   return (
     <Card className="mx-auto w-full max-w-md">
       <CardHeader>
         <CardTitle>Create an account</CardTitle>
-        <CardDescription>
-          Enter your details to get started
-        </CardDescription>
+        <CardDescription>Enter your details to get started</CardDescription>
       </CardHeader>
 
       <CardContent>
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="space-y-6"
-        >
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="displayName">
-              Display name
-            </Label>
+            <Label htmlFor="displayName">Display name</Label>
 
             <Input
               id="displayName"
               placeholder="Jane Doe"
               autoComplete="name"
-              {...registerField("displayName")}
+              {...register("displayName")}
             />
 
             {errors.displayName && (
@@ -122,13 +82,11 @@ export function RegisterForm({
               type="email"
               placeholder="you@example.com"
               autoComplete="email"
-              {...registerField("email")}
+              {...register("email")}
             />
 
             {errors.email && (
-              <p className="text-sm text-destructive">
-                {errors.email.message}
-              </p>
+              <p className="text-sm text-destructive">{errors.email.message}</p>
             )}
           </div>
 
@@ -140,7 +98,7 @@ export function RegisterForm({
               type="password"
               placeholder="At least 8 characters"
               autoComplete="new-password"
-              {...registerField("password")}
+              {...register("password")}
             />
 
             {errors.password && (
@@ -150,14 +108,8 @@ export function RegisterForm({
             )}
           </div>
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isSubmitting}
-          >
-            {isSubmitting
-              ? "Creating account..."
-              : "Create account"}
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? "Creating account..." : "Create account"}
           </Button>
 
           <p className="text-center text-sm text-muted-foreground">
