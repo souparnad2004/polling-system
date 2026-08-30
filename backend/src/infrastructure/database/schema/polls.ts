@@ -1,4 +1,4 @@
-import { index, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { boolean, index, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { users } from "./users.js";
 import { relations } from "drizzle-orm";
 
@@ -10,6 +10,11 @@ export const polls = pgTable("polls", {
     title: text("title").notNull(),
     description: text("description"),
     status: pollStatusEnum("status").notNull().default("draft"),
+    // When false, only authenticated users (user_id votes) may vote on the
+    // poll — one-vote-per-account is then strictly enforced by the
+    // votes_poll_id_user_id_unique constraint. When true (default), anonymous
+    // voterToken voting is allowed on a best-effort one-per-browser basis.
+    allowAnonymous: boolean("allow_anonymous").notNull().default(true),
     createdAt: timestamp("created_at", {withTimezone: true}).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", {withTimezone: true}).notNull().defaultNow().$onUpdate(() => new Date)
 },(t) => [

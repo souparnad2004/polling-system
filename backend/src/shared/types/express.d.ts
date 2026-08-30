@@ -1,4 +1,4 @@
-import type { User } from "../../database/schema/users.js";
+import type { User } from "../../infrastructure/database/schema/users.js";
 
 declare global {
     namespace Express{

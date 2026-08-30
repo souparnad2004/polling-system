@@ -1,18 +1,19 @@
 import { and, asc, desc, eq, inArray } from "drizzle-orm";
-import { db } from "../../database/client.js";
-import { pollOptions } from "../../database/schema/pollOptions.js";
-import { polls } from "../../database/schema/polls.js";
+import { db } from "../../infrastructure/database/client.js";
+import { pollOptions } from "../../infrastructure/database/schema/pollOptions.js";
+import { polls } from "../../infrastructure/database/schema/polls.js";
 import { UpdatePollInput } from "./poll.schema.js";
 import { unescape } from "node:querystring";
 
 export type DatabaseTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 export class PollRepository  {
-    async createPoll(tx: DatabaseTransaction, input: {userId: string; title: string; description?: string}) {
+    async createPoll(tx: DatabaseTransaction, input: {userId: string; title: string; description?: string; allowAnonymous?: boolean}) {
         const [result] = await tx.insert(polls).values({
             userId: input.userId,
             title: input.title,
             description: input.description,
+            allowAnonymous: input.allowAnonymous,
         }).returning();
 
         return result;
@@ -36,6 +37,7 @@ export class PollRepository  {
             title: polls.title,
             description: polls.description,
             status: polls.status,
+            allowAnonymous: polls.allowAnonymous,
             createdAt: polls.createdAt,
             updatedAt: polls.updatedAt
         }).from(polls).where(eq(polls.id, pollId)).limit(1);
@@ -62,6 +64,7 @@ export class PollRepository  {
             title: polls.title,
             description: polls.description,
             status: polls.status,
+            allowAnonymous: polls.allowAnonymous,
             createdAt: polls.createdAt,
             updatedAt: polls.updatedAt,
         }).from(polls).where(eq(polls.userId, userId)).orderBy(desc(polls.createdAt));
@@ -93,9 +96,15 @@ export class PollRepository  {
     }
 
     async updatePoll(tx: DatabaseTransaction, pollId: string, input: UpdatePollInput) {
+        // Only metadata fields (title/description/allowAnonymous) live on the
+        // polls row. When a request carries nothing but options, skip the
+        // UPDATE entirely: an empty .set({}) would build invalid SQL.
+        if (input.title === undefined && input.description === undefined && input.allowAnonymous === undefined) return null;
+
         const result = await tx.update(polls).set({
             ...(input.title !== undefined && {title: input.title}),
             ...(input.description !== undefined && {description: input.description}),
+            ...(input.allowAnonymous !== undefined && {allowAnonymous: input.allowAnonymous}),
         }).where(eq(polls.id, pollId)).returning();
 
         return result[0] ?? null;

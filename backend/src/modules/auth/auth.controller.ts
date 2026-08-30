@@ -1,6 +1,5 @@
 import type { Request, Response } from "express";
 import { SESSION_COOKIE_NAME } from "./auth.constants.js";
-import { UnauthorizedError } from "../../shared/errors/unauthorized-error.js";
 import { env } from "../../config/env.js";
 import type { AuthService } from "./auth.service.js";
 import type { SessionService } from "./session.service.js";
@@ -44,22 +43,6 @@ export function createAuthController({
         res.status(200).json({ user });
     }
 
-    function getCurrentUser(req: Request, res: Response): void {
-    if (!req.user) throw new UnauthorizedError();
-
-    // Match the PublicUser shape returned by register/login:
-    // `updatedAt` is a server-internal timestamp and is intentionally omitted.
-    res.status(200).json({
-        user: {
-            id: req.user.id,
-            email: req.user.email,
-            displayName: req.user.displayName,
-            status: req.user.status,
-            createdAt: req.user.createdAt,
-        },
-    });
-    }
-
     async function logout(req: Request, res: Response): Promise<void> {
     const token = req.cookies?.[SESSION_COOKIE_NAME];
 
@@ -70,5 +53,5 @@ export function createAuthController({
         res.status(204).end();
     }
 
-    return { register, login, getCurrentUser, logout };
+    return { register, login, logout };
 }

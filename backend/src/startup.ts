@@ -1,8 +1,9 @@
 import { Server } from "node:http";
 import app from "./app.js";
 import { env } from "./config/env.js";
-import { db } from "./database/client.js";
+import { db } from "./infrastructure/database/client.js"
 import { dependencies } from "./container.js";
+import { PollWebSocketServer } from "./infrastructure/websocket/websocket.server.js";
 
 const SESSION_CLEANUP_INTERVAL_MS = 60 * 60 * 1000; // 1 hour
 
@@ -22,6 +23,9 @@ export async function startupApplication(): Promise<Server> {
     const server = app.listen(env.PORT, () => {
       console.log(`Polling API listening on port ${env.PORT} in ${env.NODE_ENV} mode`);
     });
+
+    // Mount the realtime websocket endpoint on the same HTTP server.
+    new PollWebSocketServer(dependencies.webSocketManager, server);
 
     resolve(server);
   });

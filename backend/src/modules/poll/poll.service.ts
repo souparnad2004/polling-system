@@ -1,4 +1,4 @@
-import { db } from "../../database/client.js";
+import { db } from "../../infrastructure/database/client.js";
 import { ConflictError } from "../../shared/errors/conflict-error.js";
 import { ForbiddenError } from "../../shared/errors/forbidden-error.js";
 import { NotFoundError } from "../../shared/errors/not-found-error.js";
@@ -10,7 +10,7 @@ export class PollService {
 
     async createPoll(userId: string, input: CreatePollInput) {
         return db.transaction(async (tx) => {
-            const poll = await this.pollRepository.createPoll(tx, {userId, title: input.title, description: input.description});
+            const poll = await this.pollRepository.createPoll(tx, {userId, title: input.title, description: input.description, allowAnonymous: input.allowAnonymous});
             const options = await this.pollRepository.createOptions(tx, {options: input.options, pollId: poll.id});
             return {...poll, options}
         })
@@ -51,7 +51,12 @@ export class PollService {
                 await this.pollRepository.createOptions(tx, {pollId, options: input.options});
             }
 
-            await this.pollRepository.updatePoll(tx, pollId, input);
+            // Only touch the polls row when a metadata field (title/description/
+            // allowAnonymous) is actually present; options-only updates skip the
+            // UPDATE.
+            if (input.title !== undefined || input.description !== undefined || input.allowAnonymous !== undefined) {
+                await this.pollRepository.updatePoll(tx, pollId, input);
+            }
 
             const updatedPoll = await this.pollRepository.findById(pollId, tx);
 

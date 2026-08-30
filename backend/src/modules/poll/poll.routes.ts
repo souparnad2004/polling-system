@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { PollService } from "./poll.service.js";
 import { createPollController } from "./poll.controller.js";
-import { createRequireAuthentication } from "../../shared/middlewares/auth.middleware.js";
+import { createRequireAuthentication, createOptionalAuthentication } from "../../shared/middlewares/auth.middleware.js";
 import { SessionService } from "../auth/session.service.js";
 import {
   createPollSchema,
@@ -22,6 +22,7 @@ export function createPollRouter({
   const router: Router = Router();
   const pollController = createPollController(pollService);
   const requireAuthentication = createRequireAuthentication(sessionService);
+  const optionalAuthentication = createOptionalAuthentication(sessionService);
 
   router.post(
     "/create",
@@ -37,6 +38,10 @@ export function createPollRouter({
   router.get(
     "/:pollId",
     validate(pollIdParamsSchema, "params"),
+    // Optional auth: anonymous viewers are allowed, but a valid session
+    // populates req.user so PollService.getPoll can expose draft polls to
+    // their authenticated owner.
+    optionalAuthentication,
     pollController.getPoll,
   );
   router.patch(

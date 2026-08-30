@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
-import { db } from "../../database/client.js";
-import { credentials } from "../../database/schema/credentials.js";
-import { type User, users } from "../../database/schema/users.js";
+import { db } from "../../infrastructure/database/client.js";
+import { credentials } from "../../infrastructure/database/schema/credentials.js";
+import { type User, users } from "../../infrastructure/database/schema/users.js";
 
 export type DatabaseTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 

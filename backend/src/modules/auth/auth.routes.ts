@@ -22,7 +22,6 @@ export function createAuthRouter({authService, sessionService}: AuthRouteDepende
 
 	router.post("/register", validate(registerSchema), controller.register);
 	router.post("/login", loginRateLimit, validate(loginSchema), controller.login);
-	router.get("/me", requireAuthentication, controller.getCurrentUser);
 	router.post("/logout", requireAuthentication, controller.logout);
 
 	return router;

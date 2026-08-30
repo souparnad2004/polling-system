@@ -1,7 +1,7 @@
 import { and, eq, gt, isNull, lt } from "drizzle-orm";
-import { db } from "../../database/client.js";
-import { sessions } from "../../database/schema/sessions.js";
-import { type User, users } from "../../database/schema/users.js";
+import { db } from "../../infrastructure/database/client.js";
+import { sessions } from "../../infrastructure/database/schema/sessions.js";
+import { type User, users } from "../../infrastructure/database/schema/users.js";
 
 export class SessionRepository {
     async create(userId: string, tokenHash: string, expiresAt: Date) {

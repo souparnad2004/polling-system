@@ -8,6 +8,20 @@
       "when": 1787850190640,
       "tag": "0000_loud_mac_gargan",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1787924526291,
+      "tag": "0001_classy_steel_serpent",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1787926302130,
+      "tag": "0002_greedy_doctor_strange",
+      "breakpoints": true
     }
   ]
 }

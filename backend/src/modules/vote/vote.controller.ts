@@ -1,16 +1,30 @@
 import { VoteService } from "./vote.service.js";
 import type { Request, Response } from "express";
+import { env } from "../../config/env.js";
+import type { Vote } from "../../infrastructure/database/schema/votes.js";
 
 const VOTER_TOKEN_COOKIE_NAME = "voterToken";
 
 // The voterToken cookie is how an anonymous voter's identity survives across
 // requests (their votes.voter_token row). 30-day expiry keeps returning guests
-// able to change/remove their vote without forcing a login.
+// able to change/remove their vote without forcing a login. The Secure flag is
+// enabled only in production so local (HTTP) development keeps working.
 const VOTER_TOKEN_COOKIE_OPTIONS = {
     httpOnly: true,
     sameSite: "lax" as const,
     maxAge: 1000 * 60 * 60 * 24 * 30,
+    secure: env.NODE_ENV === "production",
 };
+
+// The anonymous identity is only ever exposed through the Set-Cookie response;
+// the JSON body must never leak voterToken back to the client. Returns a public
+// vote DTO with the voterToken field stripped.
+function toPublicVote(vote: Vote | null) {
+    if (!vote) return vote;
+    const { voterToken: _voterToken, ...publicVote } = vote;
+    void _voterToken;
+    return publicVote;
+}
 
 export function createVoteController(voteService: VoteService) {
     // Identity resolution: an authenticated user always wins and never falls back
@@ -36,7 +50,7 @@ export function createVoteController(voteService: VoteService) {
         }
 
         res.status(201).json({
-            vote: result.vote,
+            vote: toPublicVote(result.vote),
         });
     }
 
@@ -48,7 +62,7 @@ export function createVoteController(voteService: VoteService) {
         const vote = await voteService.changeVote(pollId, optionId, userId, voterToken);
 
         res.status(200).json({
-            vote,
+            vote: toPublicVote(vote),
         });
     }
 
@@ -59,12 +73,14 @@ export function createVoteController(voteService: VoteService) {
         const vote = await voteService.removeVote(pollId, userId, voterToken);
 
         res.status(200).json({
-            vote,
+            vote: toPublicVote(vote),
         });
     }
 
     async function getResult(req: Request<{pollId: string}>, res: Response) {
-        const result = await voteService.getResults(req.params.pollId);
+        // viewerId (from optional auth) lets the service keep draft results
+        // private to the authenticated owner, like PollService.getPoll.
+        const result = await voteService.getResults(req.params.pollId, req.user?.id);
 
         res.status(200).json({
             result,

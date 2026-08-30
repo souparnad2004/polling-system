@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { User } from "../../database/schema/users.js";
+import type { User } from "../../infrastructure/database/schema/users.js";
 
 export const registerSchema = z.object({
     email: z.email().max(320).trim().toLowerCase(),

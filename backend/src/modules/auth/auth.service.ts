@@ -1,9 +1,9 @@
 import { randomBytes } from "node:crypto";
 import { PasswordService } from "./password.service.js";
 import { AuthRepository } from "./auth.repository.js";
-import { db } from "../../database/client.js";
+import { db } from "../../infrastructure/database/client.js";
 import type { LoginInput, PublicUser, RegisterInput } from "./auth.schema.js";
-import type { User } from "../../database/schema/users.js";
+import type { User } from "../../infrastructure/database/schema/users.js";
 import { ConflictError } from "../../shared/errors/conflict-error.js";
 import { AuthenticationError } from "../../shared/errors/authentication-error.js";
 import { isUniqueViolation } from "../../shared/errors/db-error.js";

@@ -9,7 +9,10 @@ export const votes = pgTable("votes", {
     pollId: uuid("poll_id").notNull().references(() => polls.id, {onDelete: "cascade"}),
     userId: uuid("user_id").references(() => users.id, {onDelete: "cascade"}),
     optionId: uuid("option_id").notNull().references(() => pollOptions.id, {onDelete: "cascade"}),
-    voterToken: uuid("voter_token").unique(),
+    // voterToken identifies an anonymous voter and is unique per poll via the
+    // votes_poll_id_voter_token_unique constraint below; it must NOT be globally
+    // unique so the same guest can vote anonymously on multiple polls.
+    voterToken: uuid("voter_token"),
     createdAt: timestamp("created_at", {withTimezone: true}).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", {withTimezone: true}).notNull().defaultNow().$onUpdate(() => new Date()),
 },(t) => [

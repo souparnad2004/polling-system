@@ -1,7 +1,7 @@
 import { and, eq, or, sql } from "drizzle-orm";
-import { db } from "../../database/client.js";
-import { votes } from "../../database/schema/votes.js";
-import { pollOptions } from "../../database/schema/pollOptions.js";
+import { db } from "../../infrastructure/database/client.js";
+import { votes } from "../../infrastructure/database/schema/votes.js";
+import { pollOptions } from "../../infrastructure/database/schema/pollOptions.js";
 
 export class VoteRepository {
     async create(input: {pollId: string; optionId: string; userId?: string; voterToken?: string}) {
