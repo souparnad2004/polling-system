@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -111,7 +110,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
           <p className="text-center text-sm text-muted-foreground">
             Don&apos;t have an account?
             <Link
-              href="/auth/register"
+              href="/register"
               className="font-medium text-primary hover:underline"
             >
               Create one

@@ -14,7 +14,7 @@ export default function RegisterPage() {
       type: "success",
     });
 
-    router.push("/polls");
+    router.push("/");
   }
 
   return (

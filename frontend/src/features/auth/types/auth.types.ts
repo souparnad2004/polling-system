@@ -1,15 +1,27 @@
-export interface RegisterResponse {
+export type RegisterResponse = {
   user: {
     id: string;
     email: string;
     displayName: string;
+    status: string;
+    createdAt: string;
   };
-}
+};
 
-export interface LoginResponse {
+export type LoginResponse = {
   user: {
     id: string;
     email: string;
     displayName: string;
+    status: string;
+    createdAt: string;
   };
-}
+};
+
+export type User = {
+  id: string;
+  email: string;
+  displayName: string;
+  status: string;
+  createdAt: string;
+};

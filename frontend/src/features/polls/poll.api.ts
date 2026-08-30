@@ -1,4 +1,4 @@
-import { apiFetch } from "@/src/lib/api/client";
+import { apiClient } from "@/src/lib/api/client";
 
 export interface PollOption {
     id: string;
@@ -26,17 +26,17 @@ export interface PollResults {
 }
 
 export async function getPoll(pollId: string):Promise<Poll> {
-    const response = await apiFetch<{poll: Poll}>(`/api/polls/${pollId}`);
+    const response = await apiClient<{poll: Poll}>(`/api/polls/${pollId}`);
     return response.poll;
 }
 
 export async function getPollResults(pollId: string):Promise<PollResults> {
-    const response = await apiFetch<{result: PollResults}>(`/api/polls/${pollId}/results`);
+    const response = await apiClient<{result: PollResults}>(`/api/polls/${pollId}/results`);
     return response.result;
 }
 
 export async function createVote(pollId: string, optionId: string) {
-    const response = await apiFetch<{vote: {id: string}}>(`/api/polls/${pollId}/votes`, {
+    const response = await apiClient<{vote: {id: string}}>(`/api/polls/${pollId}/votes`, {
         method: "POST",
         body: JSON.stringify({
             optionId
@@ -47,7 +47,7 @@ export async function createVote(pollId: string, optionId: string) {
 }
 
 export async function getPolls(): Promise<Poll[]> {
-    const response = await apiFetch<{polls: Poll[]}>(`/api/polls`);
+    const response = await apiClient<{polls: Poll[]}>(`/api/polls`);
     return response.polls;
 }
 
@@ -60,7 +60,7 @@ export interface CreatePollInput {
 export async function createPoll(
   input: CreatePollInput,
 ): Promise<Poll> {
-  const response = await apiFetch<{
+  const response = await apiClient<{
     poll: Poll;
   }>("api/polls", {
     method: "POST",
@@ -77,7 +77,7 @@ export interface updatePollInput{
 }
 
 export async function updatePoll(pollId: string, input: updatePollInput):Promise<Poll> {
-    const response = await apiFetch<{poll: Poll}>(`api/polls/${pollId}`, {
+    const response = await apiClient<{poll: Poll}>(`api/polls/${pollId}`, {
         method: "PATCH",
         body: JSON.stringify(input),
     });
@@ -86,7 +86,7 @@ export async function updatePoll(pollId: string, input: updatePollInput):Promise
 }
 
 export async function publishPoll(pollId: string):Promise<Poll> {
-    const response = await apiFetch<{poll: Poll}>(`api/polls/${pollId}/publish`, {
+    const response = await apiClient<{poll: Poll}>(`api/polls/${pollId}/publish`, {
         method: "POST",
     });
 
@@ -98,7 +98,7 @@ export async function publishPoll(pollId: string):Promise<Poll> {
 export async function closePoll(
   pollId: string,
 ): Promise<Poll> {
-  const response = await apiFetch<{
+  const response = await apiClient<{
     poll: Poll;
   }>(`api/polls/${pollId}/close`, {
     method: "POST",
@@ -110,7 +110,7 @@ export async function closePoll(
 export async function deletePoll(
   pollId: string,
 ): Promise<void> {
-  await apiFetch<void>(
+  await apiClient<void>(
     `/polls/${pollId}`,
     {
       method: "DELETE",

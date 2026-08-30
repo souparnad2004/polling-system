@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -115,7 +114,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           <p className="text-center text-sm text-muted-foreground">
             Already have an account?{" "}
             <Link
-              href="/auth/login"
+              href="/login"
               className="font-medium text-primary hover:underline"
             >
               Sign in
