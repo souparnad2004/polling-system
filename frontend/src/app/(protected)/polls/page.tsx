@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PollCard } from "@/src/features/polls/components/poll-card";
-import { getPolls } from "@/src/features/polls/poll.api";
+import { getPolls } from "@/src/features/api/poll.api";
 import { useQuery } from "@tanstack/react-query";
 
 export default function POllsPage() {

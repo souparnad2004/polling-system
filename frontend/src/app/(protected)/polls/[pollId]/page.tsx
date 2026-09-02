@@ -1,13 +1,16 @@
 "use client";
 
 import { use } from "react";
+import { useRouter } from "next/navigation";
 import {
   createVote,
   getPoll,
   getPollResults,
-} from "@/src/features/polls/poll.api";
+} from "@/src/features/api/poll.api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { PollDetail } from "../../../features/polls/components/poll-detail";
+import { PollDetail } from "@/src/features/polls/components/poll-detail";
+import { PollManagementActions } from "@/src/features/polls/components/poll-management-actions";
+import { useCurrentUser } from "@/src/features/auth/hooks/useAuth";
 import { toast } from "@/components/ui/toast";
 
 interface PollPageProps {
@@ -18,6 +21,8 @@ interface PollPageProps {
 
 export default function PollPage({ params }: PollPageProps) {
   const { pollId } = use(params);
+  const router = useRouter();
+  const { data: currentUser } = useCurrentUser();
 
   const pollQuery = useQuery({
     queryKey: ["poll", pollId],
@@ -66,6 +71,21 @@ export default function PollPage({ params }: PollPageProps) {
 
   return (
     <main>
+      {pollQuery.data.userId === currentUser?.id && (
+        <div className="mx-auto max-w-2xl px-6 pt-6">
+          <PollManagementActions
+            poll={pollQuery.data}
+            onDeleted={() => {
+              queryClient.invalidateQueries({
+                queryKey: ["polls"],
+              });
+
+              router.push("/polls");
+            }}
+          />
+        </div>
+      )}
+
       <PollDetail
           poll={pollQuery.data}
           results={resultsQuery.data}

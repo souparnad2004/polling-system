@@ -9,40 +9,28 @@ export type ClientMessage =
     }
 
 
-export interface PollResult {
+
+export interface PollResultOption {
   optionId: string;
   option: string;
   voteCount: number;
 }
-export type ServerMessage = 
-| {
-    type: "POLL_RESULT_UPDATED",
-    pollId: string,
-    results: PollResult[]
-}
-| {
-    type: "ERROR",
-    code: string,
-    message: string
-}
-/**
- * Type guard for validating inbound WebSocket messages.
- * Returns `true` only for a well-formed `ClientMessage`
- * (a known message type with a non-empty `pollId`).
- */
-export function isClientMessage(value: unknown): value is ClientMessage {
-  if (typeof value !== "object" || value === null) {
-    return false;
-  }
 
-  const message = value as Record<string, unknown>;
-
-  if (
-    message.type !== "SUBSCRIBE_POLL" &&
-    message.type !== "UNSUBSCRIBE_POLL"
-  ) {
-    return false;
-  }
-
-  return typeof message.pollId === "string" && message.pollId.length > 0;
+export interface PollResultsPayload {
+  pollId: string;
+  totalVotes: number;
+  options: PollResultOption[];
 }
+
+
+export type ServerMessage =
+  | {
+      type: "POLL_RESULTS_UPDATED";
+      pollId: string;
+      results: PollResultsPayload;
+    }
+  | {
+      type: "ERROR";
+      code: string;
+      message: string;
+    };

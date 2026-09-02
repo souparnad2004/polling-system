@@ -1,93 +1,51 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useFieldArray, useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { createPoll } from "../poll.api";
+import { Switch } from "@/components/ui/switch";
+import { createPoll } from "../../api/poll.api";
+import { createPollSchema } from "../schemas/poll.schema";
 
-const createPollSchema = z.object({
-  title: z
-    .string()
-    .trim()
-    .min(1, "Question is required")
-    .max(200, "Question is too long"),
 
-  description: z
-    .string()
-    .trim()
-    .max(1000, "Description is too long")
-    .optional(),
-
-  options: z
-    .array(
-      z.object({
-        text: z
-          .string()
-          .trim()
-          .min(1, "Option cannot be empty")
-          .max(100, "Option is too long"),
-      }),
-    )
-    .min(2, "At least two options are required")
-    .max(10, "Maximum 10 options allowed"),
-});
-
-type CreatePollFormData =
-  z.infer<typeof createPollSchema>;
+type CreatePollFormData = z.infer<typeof createPollSchema>;
 
 interface CreatePollFormProps {
   onSuccess: (pollId: string) => void;
 }
 
-export function CreatePollForm({
-  onSuccess,
-}: CreatePollFormProps) {
+export function CreatePollForm({ onSuccess }: CreatePollFormProps) {
   const {
     register,
     control,
     handleSubmit,
-    formState: {
-      errors,
-      isSubmitting,
-    },
+    formState: { errors, isSubmitting },
   } = useForm<CreatePollFormData>({
     resolver: zodResolver(createPollSchema),
     defaultValues: {
       title: "",
       description: "",
-      options: [
-        { text: "" },
-        { text: "" },
-      ],
+      options: [{ text: "" }, { text: "" }],
+      allowAnonymous: false,
     },
   });
 
-  const { fields, append, remove } =
-    useFieldArray({
-      control,
-      name: "options",
-    });
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "options",
+  });
 
-  async function onSubmit(
-    data: CreatePollFormData,
-  ) {
+  async function onSubmit(data: CreatePollFormData) {
     const poll = await createPoll({
       title: data.title,
-      description:
-        data.description || undefined,
-      options: data.options.map(
-        (option) => option.text,
-      ),
+      description: data.description || undefined,
+      options: data.options.map((option) => option.text),
+      allowAnonymous: data.allowAnonymous,
     });
 
     onSuccess(poll.id);
@@ -100,14 +58,9 @@ export function CreatePollForm({
       </CardHeader>
 
       <CardContent>
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="space-y-6"
-        >
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="title">
-              Question
-            </Label>
+            <Label htmlFor="title">Question</Label>
 
             <Input
               id="title"
@@ -116,16 +69,12 @@ export function CreatePollForm({
             />
 
             {errors.title && (
-              <p className="text-sm text-destructive">
-                {errors.title.message}
-              </p>
+              <p className="text-sm text-destructive">{errors.title.message}</p>
             )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">
-              Description
-            </Label>
+            <Label htmlFor="description">Description</Label>
 
             <Textarea
               id="description"
@@ -140,6 +89,29 @@ export function CreatePollForm({
             )}
           </div>
 
+          <div className="flex items-center justify-between gap-4">
+            <div className="space-y-1">
+              <Label htmlFor="allowAnonymous">Allow anonymous voting</Label>
+
+              <p className="text-sm text-muted-foreground">
+                Let people vote without signing in. Turn this off to restrict
+                voting to logged-in users.
+              </p>
+            </div>
+
+            <Controller
+              control={control}
+              name="allowAnonymous"
+              render={({ field }) => (
+                <Switch
+                  id="allowAnonymous"
+                  checked={field.value ?? false}
+                  onCheckedChange={field.onChange}
+                />
+              )}
+            />
+          </div>
+
           <div className="space-y-4">
             <div>
               <Label>Options</Label>
@@ -150,24 +122,17 @@ export function CreatePollForm({
             </div>
 
             {fields.map((field, index) => (
-              <div
-                key={field.id}
-                className="flex gap-2"
-              >
+              <div key={field.id} className="flex gap-2">
                 <Input
                   placeholder={`Option ${index + 1}`}
-                  {...register(
-                    `options.${index}.text`,
-                  )}
+                  {...register(`options.${index}.text`)}
                 />
 
                 {fields.length > 2 && (
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() =>
-                      remove(index)
-                    }
+                    onClick={() => remove(index)}
                   >
                     Remove
                   </Button>
@@ -184,23 +149,15 @@ export function CreatePollForm({
             <Button
               type="button"
               variant="outline"
-              onClick={() =>
-                append({ text: "" })
-              }
+              onClick={() => append({ text: "" })}
               disabled={fields.length >= 10}
             >
               Add option
             </Button>
           </div>
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isSubmitting}
-          >
-            {isSubmitting
-              ? "Creating..."
-              : "Create poll"}
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? "Creating..." : "Create poll"}
           </Button>
         </form>
       </CardContent>

@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import type { PollResult, ServerMessage } from "./websocket.types.js";
+import type { PollResultsPayload, ServerMessage } from "./websocket.types.js";
 
 export interface ClientConnection {
   socket: WebSocket;
@@ -36,9 +36,9 @@ export class WebSocketManager {
     client.subscribedPolls.delete(pollId);
   }
 
-  broadcastPollResult(pollId: string, results: PollResult[]) {
+  broadcastPollResult(pollId: string, results: PollResultsPayload) {
     const message: ServerMessage = {
-      type: "POLL_RESULT_UPDATED",
+      type: "POLL_RESULTS_UPDATED",
       pollId,
       results,
     };

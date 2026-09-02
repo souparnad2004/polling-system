@@ -11,16 +11,10 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  RadioGroup,
-  RadioGroupItem,
-} from "@/components/ui/radio-group";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import type {
-  Poll,
-  PollResults,
-} from "../poll.api";
+import type { Poll, PollResults } from "../../api/poll.api";
 
 interface PollDetailProps {
   poll: Poll;
@@ -28,16 +22,10 @@ interface PollDetailProps {
   onVote: (optionId: string) => Promise<void>;
 }
 
-export function PollDetail({
-  poll,
-  results,
-  onVote,
-}: PollDetailProps) {
-  const [selectedOption, setSelectedOption] =
-    useState<string>("");
+export function PollDetail({ poll, results, onVote }: PollDetailProps) {
+  const [selectedOption, setSelectedOption] = useState<string>("");
 
-  const [isVoting, setIsVoting] =
-    useState(false);
+  const [isVoting, setIsVoting] = useState(false);
 
   async function handleVote() {
     if (!selectedOption || isVoting) {
@@ -62,9 +50,7 @@ export function PollDetail({
       <Card className="mx-auto max-w-2xl">
         <CardHeader className="space-y-4">
           <div className="flex items-center justify-between gap-4">
-            <Badge variant="secondary">
-              {poll.status}
-            </Badge>
+            <Badge variant="secondary">{poll.status}</Badge>
 
             <span className="text-sm text-muted-foreground">
               {results.totalVotes} votes
@@ -72,9 +58,7 @@ export function PollDetail({
           </div>
 
           <div>
-            <CardTitle className="text-2xl">
-              {poll.title}
-            </CardTitle>
+            <CardTitle className="text-2xl">{poll.title}</CardTitle>
 
             {poll.description && (
               <CardDescription className="mt-2">
@@ -96,10 +80,7 @@ export function PollDetail({
                 htmlFor={option.id}
                 className="flex cursor-pointer items-center gap-3 rounded-xl border p-4 transition-colors hover:bg-muted"
               >
-                <RadioGroupItem
-                  value={option.id}
-                  id={option.id}
-                />
+                <RadioGroupItem value={option.id} id={option.id} />
 
                 <span>{option.text}</span>
               </Label>
@@ -112,17 +93,13 @@ export function PollDetail({
               disabled={!selectedOption || isVoting}
               onClick={handleVote}
             >
-              {isVoting
-                ? "Submitting..."
-                : "Vote"}
+              {isVoting ? "Submitting..." : "Vote"}
             </Button>
           )}
 
           <div className="space-y-4">
             <div>
-              <h2 className="font-semibold">
-                Results
-              </h2>
+              <h2 className="font-semibold">Results</h2>
 
               <p className="text-sm text-muted-foreground">
                 Current vote distribution
@@ -134,32 +111,20 @@ export function PollDetail({
                 const percentage =
                   results.totalVotes === 0
                     ? 0
-                    : (option.voteCount /
-                        results.totalVotes) *
-                      100;
+                    : (option.voteCount / results.totalVotes) * 100;
 
                 return (
-                  <div
-                    key={option.optionId}
-                    className="space-y-2"
-                  >
+                  <div key={option.optionId} className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span>
-                        {option.option}
-                      </span>
+                      <span>{option.option}</span>
 
                       <span className="text-muted-foreground">
-                        {option.voteCount} (
-                        {Math.round(
-                          percentage,
-                        )}
+                        {option.voteCount} ({Math.round(percentage)}
                         %)
                       </span>
                     </div>
 
-                    <Progress
-                      value={percentage}
-                    />
+                    <Progress value={percentage} />
                   </div>
                 );
               })}

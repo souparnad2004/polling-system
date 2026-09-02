@@ -1,7 +1,7 @@
 import { WebSocketServer, WebSocket } from "ws";
 import { WebSocketManager } from "./websocket-manager.js";
 import { Server as HTTpserver } from "node:http";
-import { ClientMessage, ServerMessage, isClientMessage } from "./websocket.types.js";
+import { ClientMessage, ServerMessage } from "./websocket.types.js";
 
 export class PollWebSocketServer {
   private readonly wss: WebSocketServer;
@@ -25,7 +25,7 @@ export class PollWebSocketServer {
 
     this.wss.close(() => {
       clearInterval(heartBeatIntervar);
-    })
+    });
   }
 
   private handleConnection(socket: WebSocket) {
@@ -36,8 +36,8 @@ export class PollWebSocketServer {
     const client = this.manager.addClient(socket, "");
 
     socket.on("pong", () => {
-        client.isAlive = true;
-    })
+      client.isAlive = true;
+    });
 
     socket.on("message", (rawMessage) => {
       this.handleMessage(client, rawMessage.toString());
@@ -66,7 +66,7 @@ export class PollWebSocketServer {
       return;
     }
 
-    if (!isClientMessage(message)) {
+    if (!this.isClientMessage(message)) {
       this.sendError(
         client.socket,
         "INVALID_MESSAGE",
@@ -85,6 +85,23 @@ export class PollWebSocketServer {
         this.manager.unsubscribe(client, message.pollId);
         break;
     }
+  }
+
+  private isClientMessage(value: unknown): value is ClientMessage {
+    if (typeof value !== "object" || value === null) {
+      return false;
+    }
+
+    const message = value as Record<string, unknown>;
+
+    if (
+      message.type !== "SUBSCRIBE_POLL" &&
+      message.type !== "UNSUBSCRIBE_POLL"
+    ) {
+      return false;
+    }
+
+    return typeof message.pollId === "string" && message.pollId.length > 0;
   }
 
   private sendError(socket: WebSocket, code: string, message: string): void {

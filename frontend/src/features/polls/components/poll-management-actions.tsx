@@ -2,15 +2,13 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/components/ui/toast";
-import {
-  Button,
-} from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   publishPoll,
   closePoll,
   deletePoll,
   type Poll,
-} from "../poll.api";
+} from "../../api/poll.api";
 
 interface PollManagementActionsProps {
   poll: Poll;
@@ -24,8 +22,7 @@ export function PollManagementActions({
   const queryClient = useQueryClient();
 
   const publishMutation = useMutation({
-    mutationFn: () =>
-      publishPoll(poll.id),
+    mutationFn: () => publishPoll(poll.id),
 
     onSuccess: () => {
       toast.add({
@@ -40,19 +37,16 @@ export function PollManagementActions({
     },
 
     onError: () => {
-      toast.add(
-        {
-          title: "Error",
-          description: "Unable to publish poll",
-          type: "error",
-        },
-      );
+      toast.add({
+        title: "Error",
+        description: "Unable to publish poll",
+        type: "error",
+      });
     },
   });
 
   const closeMutation = useMutation({
-    mutationFn: () =>
-      closePoll(poll.id),
+    mutationFn: () => closePoll(poll.id),
 
     onSuccess: () => {
       toast.add({
@@ -67,19 +61,16 @@ export function PollManagementActions({
     },
 
     onError: () => {
-      toast.add(
-        {
-          title: "Error",
-          description: "Unable to close poll",
-          type: "error",
-        },
-      );
+      toast.add({
+        title: "Error",
+        description: "Unable to close poll",
+        type: "error",
+      });
     },
   });
 
   const deleteMutation = useMutation({
-    mutationFn: () =>
-      deletePoll(poll.id),
+    mutationFn: () => deletePoll(poll.id),
 
     onSuccess: () => {
       toast.add({
@@ -91,13 +82,11 @@ export function PollManagementActions({
     },
 
     onError: () => {
-      toast.add(
-        {
-          title: "Error",
-          description: "Unable to delete poll",
-          type: "error",
-        },
-      );
+      toast.add({
+        title: "Error",
+        description: "Unable to delete poll",
+        type: "error",
+      });
     },
   });
 
@@ -109,12 +98,7 @@ export function PollManagementActions({
   return (
     <div className="flex flex-wrap gap-2">
       {poll.status === "draft" && (
-        <Button
-          disabled={isPending}
-          onClick={() =>
-            publishMutation.mutate()
-          }
-        >
+        <Button disabled={isPending} onClick={() => publishMutation.mutate()}>
           Publish
         </Button>
       )}
@@ -123,9 +107,7 @@ export function PollManagementActions({
         <Button
           variant="outline"
           disabled={isPending}
-          onClick={() =>
-            closeMutation.mutate()
-          }
+          onClick={() => closeMutation.mutate()}
         >
           Close poll
         </Button>
@@ -135,9 +117,7 @@ export function PollManagementActions({
         <Button
           variant="destructive"
           disabled={isPending}
-          onClick={() =>
-            deleteMutation.mutate()
-          }
+          onClick={() => deleteMutation.mutate()}
         >
           Delete
         </Button>

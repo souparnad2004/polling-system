@@ -76,7 +76,7 @@ export class VoteService {
 
         // Push the complete, freshly recomputed results to every client
         // subscribed to this poll.
-        this.webSocketManager.broadcastPollResult(results.pollId, results.options);
+        this.webSocketManager.broadcastPollResult(results.pollId, results);
 
         return { vote, voterToken: userId ? undefined : token };
     }
@@ -104,7 +104,15 @@ export class VoteService {
 
         if(!vote) throw new NotFoundError("vote not found");
 
-        return this.voteRepository.updateOption(vote.id, optionId);
+        const result = await this.voteRepository.updateOption(vote.id, optionId);
+
+        const results = await this.getResults(pollId);
+
+        // Push the complete, freshly recomputed results to every client
+        // subscribed to this poll.
+        this.webSocketManager.broadcastPollResult(results.pollId, results);
+
+        return result;
     }
     
     async removeVote(pollId: string, userId?: string, voterToken?: string) {
@@ -124,7 +132,15 @@ export class VoteService {
 
         if(!vote) throw new NotFoundError("vote not found");
 
-        return this.voteRepository.delete(vote.id);
+        const result = await this.voteRepository.delete(vote.id);
+
+        const results = await this.getResults(pollId);
+
+        // Push the complete, freshly recomputed results to every client
+        // subscribed to this poll.
+        this.webSocketManager.broadcastPollResult(results.pollId, results);
+
+        return result;
     }
 
     async getResults(pollId: string, viewerId?: string) {

@@ -7,6 +7,7 @@ export interface PollOption {
 
 export interface Poll {
     id: string;
+    userId: string;
     title: string;
     description?: string;
     status: "published" | "draft" | "closed";
@@ -55,6 +56,7 @@ export interface CreatePollInput {
   title: string;
   description?: string;
   options: string[];
+  allowAnonymous?: boolean;
 }
 
 export async function createPoll(

@@ -21,3 +21,4 @@ export const updatePollSchema = z.object({
 })
 
 export type UpdatePollInput = z.infer<typeof updatePollSchema>;
+
