@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/toast";
 import { RegisterInput, registerSchema } from "../schemas/register.schema";
-import { useRegister } from "../hooks/useRegister";
+import { useRegister } from "../hooks/use-register";
 
 interface RegisterFormProps {
   onSuccess: () => void;

@@ -22,8 +22,7 @@ export class PollWebSocketServer {
     const heartBeatIntervar = setInterval(() => {
       this.manager.heartBeat();
     }, 30000);
-
-    this.wss.close(() => {
+    this.wss.on("close", () => {
       clearInterval(heartBeatIntervar);
     });
   }

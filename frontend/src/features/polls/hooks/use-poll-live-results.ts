@@ -3,15 +3,8 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { PollWebSocketConnection } from "../utils/poll-websocket";
-import { PollResults } from "../../api/poll.api";
-
-export const pollQueryKeys = {
-    all: ["polls"] as const,
-
-    results: (pollId: string) =>
-        [...pollQueryKeys.all, pollId, "results"] as const,
-};
-;
+import type { PollResults } from "../types/poll.types";
+import { pollKeys } from "./use-polls";
 
 export function usePollLiveResults(
   pollId: string,
@@ -27,7 +20,7 @@ export function usePollLiveResults(
           results: PollResults,
         ) => {
           queryClient.setQueryData(
-            pollQueryKeys.results(pollId),
+            pollKeys.results(pollId),
             results,
           );
         },
@@ -35,7 +28,7 @@ export function usePollLiveResults(
         onReconnect: () => {
           void queryClient.invalidateQueries({
             queryKey:
-              pollQueryKeys.results(
+              pollKeys.results(
                 pollId,
               ),
           });

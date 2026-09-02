@@ -1,9 +1,3 @@
-import React from 'react'
+import { DashboardPage } from "@/src/features/dashboard/pages/dashboard-page";
 
-function page() {
-  return (
-    <div>page</div>
-  )
-}
-
-export default page
+export default DashboardPage;

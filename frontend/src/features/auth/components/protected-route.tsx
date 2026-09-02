@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import { useCurrentUser } from "../hooks/useAuth";
+import { useCurrentUser } from "../hooks/use-current-user";
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const router = useRouter();

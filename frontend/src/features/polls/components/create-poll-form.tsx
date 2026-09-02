@@ -3,15 +3,16 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { createPoll } from "../../api/poll.api";
-import { createPollSchema } from "../schemas/poll.schema";
 
+import { createPollSchema } from "../schemas/poll.schema";
+import { useCreatePoll } from "../hooks/use-create-poll";
 
 type CreatePollFormData = z.infer<typeof createPollSchema>;
 
@@ -20,18 +21,20 @@ interface CreatePollFormProps {
 }
 
 export function CreatePollForm({ onSuccess }: CreatePollFormProps) {
+  const createPollMutation = useCreatePoll();
+
   const {
     register,
     control,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<CreatePollFormData>({
     resolver: zodResolver(createPollSchema),
     defaultValues: {
       title: "",
       description: "",
       options: [{ text: "" }, { text: "" }],
-      allowAnonymous: false,
+      allowAnonymous: true,
     },
   });
 
@@ -40,8 +43,10 @@ export function CreatePollForm({ onSuccess }: CreatePollFormProps) {
     name: "options",
   });
 
+  const isSubmitting = createPollMutation.isPending;
+
   async function onSubmit(data: CreatePollFormData) {
-    const poll = await createPoll({
+    const poll = await createPollMutation.mutateAsync({
       title: data.title,
       description: data.description || undefined,
       options: data.options.map((option) => option.text),

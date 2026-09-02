@@ -1,4 +1,4 @@
-import { apiClient } from "@/src/lib/api/client";
+import { apiClient } from "@/lib/api/client";
 import { LoginInput } from "../schemas/login.schema";
 import { LoginResponse, RegisterResponse, User } from "../types/auth.types";
 import { RegisterInput } from "../schemas/register.schema";

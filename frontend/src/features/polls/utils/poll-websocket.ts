@@ -1,7 +1,7 @@
 import type {
   PollResults,
-} from "../../api/poll.api";
-import { PollWebSocketMessage } from "../../types/poll.types";
+} from "../types/poll.types";
+import { PollWebSocketMessage } from "../types/poll.types";
 
 const WS_URL =
   process.env.NEXT_PUBLIC_WS_URL;

@@ -17,8 +17,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/toast";
 
-import { useUpdateProfile } from "../hooks/useUpdateProfile";
-import { userKeys } from "../hooks/useUser";
+import { useUpdateProfile } from "../hooks/use-update-profile";
+import { userKeys } from "../hooks/use-user";
 import {
   updateProfileSchema,
   type UpdateProfileInput,

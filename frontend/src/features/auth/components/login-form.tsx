@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/toast";
 import { LoginInput, loginSchema } from "../schemas/login.schema";
-import { useLogin } from "../hooks/useLogin";
+import { useLogin } from "../hooks/use-login";
 
 export type LoginFormProps = {
   onSuccess: () => void;

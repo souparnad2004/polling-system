@@ -1,4 +1,4 @@
-import { apiClient } from "@/src/lib/api/client";
+import { apiClient } from "@/lib/api/client";
 
 import type { UpdateProfileInput } from "../schemas/update-profile.schema";
 import type { User, UserResponse } from "../types/user.types";

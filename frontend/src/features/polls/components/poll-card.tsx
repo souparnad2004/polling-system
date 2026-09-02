@@ -2,7 +2,7 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import type { Poll } from "../../api/poll.api";
+import type { Poll } from "../types/poll.types";
 
 interface PollCardProps {
   poll: Poll;
