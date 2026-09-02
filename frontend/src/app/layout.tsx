@@ -1,31 +1,42 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+
+import "./globals.css";
+
 import Providers from "./provider";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/toast";
 
 export const metadata: Metadata = {
   title: "Polling System",
-  description: "Realtime Polling Platform",
+  description: "Create and participate in polls",
 };
 
-interface RootLayoutProps {
-  children: React.ReactNode;
-}
+const themeScript = `(function () {
+  try {
+    var stored = localStorage.getItem("theme");
+    var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    var resolved = stored === "dark" || (!stored && prefersDark) ? "dark" : "light";
+    document.documentElement.classList.toggle("dark", resolved === "dark");
+  } catch (e) {}
+})();`;
 
-export default function RootLayout({ children }: Readonly<RootLayoutProps>) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <Providers>{children}</Providers>
+    <html lang="en" className="font-sans" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
+      <body className="antialiased">
+        <Providers>
+          <ThemeProvider>
+            {children}
+            <Toaster />
+          </ThemeProvider>
+        </Providers>
       </body>
     </html>
   );

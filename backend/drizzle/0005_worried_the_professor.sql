@@ -1,1 +1,0 @@
-ALTER TABLE "polls" DROP CONSTRAINT "polls_user_id_unique";

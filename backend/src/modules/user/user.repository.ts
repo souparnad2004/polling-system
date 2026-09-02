@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
-import { db } from "../../database/client.js";
-import { users } from "../../database/schema/users.js";
+import { db } from "../../infrastructure/database/client.js";
+import { users } from "../../infrastructure/database/schema/users.js";
 
 export class UserRepository {
   async findById(userId: string) {

@@ -1,7 +1,7 @@
 import {IncomingMessage, Server, ServerResponse} from "node:http";
 
 import { startupApplication } from "./startup.js";
-import { pool } from "./database/client.js";
+import { pool } from "./infrastructure/database/client.js";
 
 let server: Server<typeof IncomingMessage, typeof ServerResponse>;
 let isShuttingDown = false;

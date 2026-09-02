@@ -1,6 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
 import { SessionRepository } from "./session.repository.js";
-import type { User } from "../../database/schema/users.js";
+import type { User } from "../../infrastructure/database/schema/users.js";
 
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 7; // 7 days
 

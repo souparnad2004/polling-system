@@ -7,6 +7,9 @@ import { PollRepository } from "./modules/poll/poll.repository.js";
 import { PollService } from "./modules/poll/poll.service.js";
 import { UserRepository } from "./modules/user/user.repository.js";
 import { UserService } from "./modules/user/user.service.js";
+import { VoteRepository } from "./modules/vote/vote.repository.js";
+import { VoteService } from "./modules/vote/vote.service.js";
+import { WebSocketManager } from "./infrastructure/websocket/websocket-manager.js";
 
 export function createDependencies() {
   const passwordService = new PasswordService();
@@ -18,12 +21,17 @@ export function createDependencies() {
   const userService = new UserService(userRepository);
   const pollRepository = new PollRepository();
   const pollService = new PollService(pollRepository);
+  const voteRepository = new VoteRepository();
+  const webSocketManager = new WebSocketManager();
+  const voteService = new VoteService(pollRepository, voteRepository, webSocketManager);
 
   return {
     authService,
     sessionService,
     userService,
-    pollService
+    pollService,
+    voteService,
+    webSocketManager,
   };
 }
 

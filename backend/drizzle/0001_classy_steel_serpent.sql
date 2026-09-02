@@ -1,0 +1,1 @@
+ALTER TABLE "votes" DROP CONSTRAINT "votes_voter_token_unique";
