@@ -4,20 +4,16 @@ import * as React from "react"
 
 import { NavMain, type NavMainItem } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
 import {
-  BarChart3Icon,
   CompassIcon,
   LayoutDashboardIcon,
   PlusCircleIcon,
-  UserIcon,
   VoteIcon,
 } from "lucide-react";
 
@@ -27,13 +23,6 @@ const data = {
     email: "you@example.com",
     avatar: "",
   },
-  teams: [
-    {
-      name: "Polling System",
-      logo: <BarChart3Icon />,
-      plan: "Free",
-    },
-  ],
   menu: [
     {
       title: "Dashboard",
@@ -56,25 +45,13 @@ const data = {
       icon: <PlusCircleIcon />,
     },
   ] satisfies NavMainItem[],
-  account: [
-    {
-      title: "Profile",
-      url: "/profile",
-      icon: <UserIcon />,
-    },
-  ] satisfies NavMainItem[],
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
-      </SidebarHeader>
-
       <SidebarContent>
         <NavMain label="Menu" items={data.menu} />
-        <NavMain label="Account" items={data.account} />
       </SidebarContent>
 
       <SidebarFooter>

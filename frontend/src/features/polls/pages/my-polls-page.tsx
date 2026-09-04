@@ -221,7 +221,7 @@ export function MyPollsPage() {
               </EmptyHeader>
             </Empty>
           ) : (
-            <div className="grid gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-1 xl:grid-cols-3">
               {visiblePolls.map((poll) => (
                 <MyPollRow key={poll.id} poll={poll} />
               ))}
@@ -235,7 +235,7 @@ export function MyPollsPage() {
 
 function MyPollsSkeleton() {
   return (
-    <div className="grid gap-4">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {Array.from({ length: 3 }).map((_, index) => (
         <Card key={index}>
           <CardContent className="flex flex-col gap-3 py-6">

@@ -21,11 +21,13 @@ export function ExploreHeader({ onFocusSearch }: ExploreHeaderProps) {
         className="mr-2 data-vertical:h-4 data-vertical:self-auto"
       />
 
-      <div className="hidden items-center gap-2 sm:flex">
+      <div className="flex items-center gap-2">
         <div className="flex size-6 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <BarChart3Icon className="size-3.5" />
         </div>
-        <span className="text-sm font-semibold tracking-tight">Pollly</span>
+        <span className="hidden text-sm font-semibold tracking-tight sm:inline">
+          Polly
+        </span>
       </div>
 
       <div className="ml-auto flex items-center gap-1.5">

@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -50,7 +50,7 @@ interface MyPollRowProps {
 export function MyPollRow({ poll }: MyPollRowProps) {
   return (
     <Card className="h-full">
-      <CardHeader className="grid grid-cols-[1fr_auto] items-start gap-4">
+      <CardHeader className=" grid-cols-[1fr_auto] items-start gap-4">
         <div className="flex flex-col gap-1.5">
           <CardTitle className="line-clamp-1 text-base">
             {poll.title}
@@ -78,12 +78,18 @@ export function MyPollRow({ poll }: MyPollRowProps) {
       </CardContent>
 
       <CardFooter className="flex items-center gap-2">
-        <Button variant="outline" size="sm" render={<Link href={`/poll/${poll.id}`} />}>
+        <Button
+          variant="outline"
+          size="sm"
+          nativeButton={false}
+          render={<Link href={`/polls/${poll.id}`} />}
+        >
           View
         </Button>
         <Button
           variant="ghost"
           size="sm"
+          nativeButton={false}
           render={<Link href={`/polls/${poll.id}/analytics`} />}
         >
           Analytics
@@ -107,10 +113,9 @@ function PollRowActions({ poll }: { poll: Poll }) {
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button
+          <button
             type="button"
-            variant="ghost"
-            size="icon"
+            className={buttonVariants({ variant: "ghost", size: "icon" })}
             disabled={isPending}
             aria-label="Poll actions"
           />

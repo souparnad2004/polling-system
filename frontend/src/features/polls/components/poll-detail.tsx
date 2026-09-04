@@ -24,11 +24,7 @@ import {
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-import type {
-  Poll,
-  PollOption,
-  PollResults,
-} from "../types/poll.types";
+import type { Poll, PollOption, PollResults } from "../types/poll.types";
 
 interface PollDetailProps {
   poll: Poll;
@@ -267,8 +263,7 @@ export function PollDetail({ poll, results, onVote }: PollDetailProps) {
   const canVote = poll.status === "published" && !hasVoted;
 
   const selectedOption = useMemo(
-    () =>
-      poll.options.find((option) => option.id === selectedOptionId) ?? null,
+    () => poll.options.find((option) => option.id === selectedOptionId) ?? null,
     [poll.options, selectedOptionId],
   );
 
@@ -288,9 +283,7 @@ export function PollDetail({ poll, results, onVote }: PollDetailProps) {
 
       const voteCount = result?.voteCount ?? 0;
       const percentage =
-        results.totalVotes === 0
-          ? 0
-          : (voteCount / results.totalVotes) * 100;
+        results.totalVotes === 0 ? 0 : (voteCount / results.totalVotes) * 100;
 
       map.set(option.id, { voteCount, percentage });
     }
@@ -372,7 +365,7 @@ export function PollDetail({ poll, results, onVote }: PollDetailProps) {
     }
   }
 
-return (
+  return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
@@ -433,11 +426,10 @@ return (
               className="space-y-3"
             >
               {poll.options.map((option, index) => {
-                const result =
-                  resultByOptionId.get(option.id) ?? {
-                    voteCount: 0,
-                    percentage: 0,
-                  };
+                const result = resultByOptionId.get(option.id) ?? {
+                  voteCount: 0,
+                  percentage: 0,
+                };
 
                 const isLeading =
                   maxVoteCount > 0 && result.voteCount === maxVoteCount;
@@ -468,7 +460,7 @@ return (
               })}
             </div>
 
-<AnimatePresence mode="wait" initial={false}>
+            <AnimatePresence mode="wait" initial={false}>
               {canVote && (
                 <motion.div
                   key="ballot-actions"
@@ -591,8 +583,7 @@ return (
               )}
             </AnimatePresence>
           </section>
-
-</CardContent>
+        </CardContent>
       </Card>
     </motion.div>
   );
