@@ -9,6 +9,8 @@ import { UserRepository } from "./modules/user/user.repository.js";
 import { UserService } from "./modules/user/user.service.js";
 import { VoteRepository } from "./modules/vote/vote.repository.js";
 import { VoteService } from "./modules/vote/vote.service.js";
+import { StatsRepository } from "./modules/stats/stats.repository.js";
+import { StatsService } from "./modules/stats/stats.service.js";
 import { WebSocketManager } from "./infrastructure/websocket/websocket-manager.js";
 
 export function createDependencies() {
@@ -24,6 +26,8 @@ export function createDependencies() {
   const voteRepository = new VoteRepository();
   const webSocketManager = new WebSocketManager();
   const voteService = new VoteService(pollRepository, voteRepository, webSocketManager);
+  const statsRepository = new StatsRepository();
+  const statsService = new StatsService(statsRepository);
 
   return {
     authService,
@@ -31,6 +35,7 @@ export function createDependencies() {
     userService,
     pollService,
     voteService,
+    statsService,
     webSocketManager,
   };
 }

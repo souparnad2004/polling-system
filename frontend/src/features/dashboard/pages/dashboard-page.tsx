@@ -1,9 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-
-import { AppSidebar, type DashboardView } from "@/components/app-sidebar";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
   Breadcrumb,
@@ -19,32 +15,19 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { toast } from "@/components/ui/toast";
-import { usePolls } from "@/src/features/polls/hooks/use-polls";
 import { useMyProfile } from "@/src/features/user/hooks/use-user";
 
-import { DashboardCreatePollPanel } from "../components/dashboard-create-poll-panel";
 import { DashboardOverview } from "../components/dashboard-overview";
-import { DashboardPollsPanel } from "../components/dashboard-polls-panel";
-import { DashboardProfilePanel } from "../components/dashboard-profile-panel";
-
-const VIEW_TITLES: Record<DashboardView, string> = {
-  dashboard: "Dashboard",
-  polls: "My Polls",
-  create: "Create Poll",
-  profile: "Profile",
-};
+import { usePollOverview } from "../hooks/use-stats";
+import { AppSidebar } from "@/components/app-sidebar";
 
 export function DashboardPage() {
-  const [activeView, setActiveView] = useState<DashboardView>("dashboard");
-  const router = useRouter();
-  const pollsQuery = usePolls();
   const profileQuery = useMyProfile();
-  const polls = pollsQuery.data ?? [];
+  const overviewQuery = usePollOverview();
 
   return (
     <SidebarProvider>
-      <AppSidebar activeView={activeView} onViewChange={setActiveView} />
+      <AppSidebar />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2 px-4">
@@ -62,7 +45,7 @@ export function DashboardPage() {
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className="hidden md:block" />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>{VIEW_TITLES[activeView]}</BreadcrumbPage>
+                  <BreadcrumbPage>Dashboard</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
@@ -73,44 +56,13 @@ export function DashboardPage() {
         </header>
 
         <div className="flex flex-1 flex-col gap-6 p-4 pt-0 md:p-6 md:pt-0">
-          {activeView === "dashboard" && (
-            <DashboardOverview
-              polls={polls}
-              isPending={pollsQuery.isPending}
-            />
-          )}
-
-          {activeView === "polls" && (
-            <DashboardPollsPanel
-              polls={polls}
-              isPending={pollsQuery.isPending}
-              isError={pollsQuery.isError}
-              onRetry={() => pollsQuery.refetch()}
-            />
-          )}
-
-          {activeView === "create" && (
-            <DashboardCreatePollPanel
-              onCreated={(pollId) => {
-                toast.add({
-                  title: "Success",
-                  description: "Poll created successfully",
-                  type: "success",
-                });
-
-                router.push(`/poll/${pollId}`);
-              }}
-            />
-          )}
-
-          {activeView === "profile" && (
-            <DashboardProfilePanel
-              isPending={profileQuery.isPending}
-              isError={profileQuery.isError}
-              onRetry={() => profileQuery.refetch()}
-              user={profileQuery.data ?? null}
-            />
-          )}
+          <DashboardOverview
+            userName={profileQuery.data?.displayName}
+            overview={overviewQuery.data}
+            overviewIsPending={overviewQuery.isPending}
+            overviewIsError={overviewQuery.isError}
+            onRetry={() => overviewQuery.refetch()}
+          />
         </div>
       </SidebarInset>
     </SidebarProvider>

@@ -10,6 +10,38 @@ export interface Poll {
   description?: string;
   status: "published" | "draft" | "closed";
   options: PollOption[];
+  voteCount?: number;
+  createdAt?: string;
+}
+
+export interface PollAnalyticsTotals {
+  responses: number;
+  uniqueVoters: number;
+  anonymousVotes: number;
+  anonymousShare: number;
+}
+
+export interface PollAnalyticsTimelinePoint {
+  date: string;
+  count: number;
+  cumulative: number;
+}
+
+export interface PollAnalyticsRecentVote {
+  createdAt: string;
+  isAnonymous: boolean;
+}
+
+export interface PollAnalytics {
+  poll: {
+    id: string;
+    title: string;
+    status: Poll["status"];
+    createdAt?: string;
+  };
+  totals: PollAnalyticsTotals;
+  timeline: PollAnalyticsTimelinePoint[];
+  recentVotes: PollAnalyticsRecentVote[];
 }
 
 export interface PollResultOption {

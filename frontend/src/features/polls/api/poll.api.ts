@@ -2,6 +2,7 @@ import { apiClient } from "@/lib/api/client";
 import type {
   CreatePollInput,
   Poll,
+  PollAnalytics,
   PollResults,
   UpdatePollInput,
 } from "../types/poll.types";
@@ -16,6 +17,13 @@ export async function getPollResults(pollId: string): Promise<PollResults> {
     `/api/polls/${pollId}/results`,
   );
   return response.result;
+}
+
+export async function getPollAnalytics(pollId: string): Promise<PollAnalytics> {
+  const response = await apiClient<{ analytics: PollAnalytics }>(
+    `/api/stats/polls/${pollId}`,
+  );
+  return response.analytics;
 }
 
 export async function createVote(pollId: string, optionId: string) {

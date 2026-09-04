@@ -12,14 +12,14 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { LayoutDashboardIcon, VoteIcon, PlusCircleIcon, UserIcon, BarChart3Icon } from "lucide-react"
-
-export type DashboardView = "dashboard" | "polls" | "create" | "profile"
-
-interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
-  activeView?: DashboardView
-  onViewChange?: (view: DashboardView) => void
-}
+import {
+  BarChart3Icon,
+  CompassIcon,
+  LayoutDashboardIcon,
+  PlusCircleIcon,
+  UserIcon,
+  VoteIcon,
+} from "lucide-react";
 
 const data = {
   user: {
@@ -34,54 +34,53 @@ const data = {
       plan: "Free",
     },
   ],
-  navMain: [
+  menu: [
     {
       title: "Dashboard",
       url: "/dashboard",
-      view: "dashboard" as const,
       icon: <LayoutDashboardIcon />,
     },
     {
-      title: "My Polls",
+      title: "Explore",
       url: "/polls",
-      view: "polls" as const,
+      icon: <CompassIcon />,
+    },
+    {
+      title: "My Polls",
+      url: "/polls/mine",
       icon: <VoteIcon />,
     },
     {
-      title: "Create poll",
+      title: "Create Poll",
       url: "/polls/create",
-      view: "create" as const,
       icon: <PlusCircleIcon />,
     },
+  ] satisfies NavMainItem[],
+  account: [
     {
       title: "Profile",
       url: "/profile",
-      view: "profile" as const,
       icon: <UserIcon />,
     },
   ] satisfies NavMainItem[],
 }
 
-export function AppSidebar({
-  activeView,
-  onViewChange,
-  ...props
-}: AppSidebarProps) {
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
+
       <SidebarContent>
-        <NavMain
-          items={data.navMain}
-          activeView={activeView}
-          onViewChange={(view) => onViewChange?.(view as DashboardView)}
-        />
+        <NavMain label="Menu" items={data.menu} />
+        <NavMain label="Account" items={data.account} />
       </SidebarContent>
+
       <SidebarFooter>
         <NavUser user={data.user} />
       </SidebarFooter>
+
       <SidebarRail />
     </Sidebar>
   )

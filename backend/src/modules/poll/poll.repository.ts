@@ -1,9 +1,10 @@
-import { and, asc, desc, eq, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "../../infrastructure/database/client.js";
-import { pollOptions } from "../../infrastructure/database/schema/pollOptions.js";
+import { votes } from "../../infrastructure/database/schema/votes.js";
 import { polls } from "../../infrastructure/database/schema/polls.js";
+import { pollOptions } from "../../infrastructure/database/schema/pollOptions.js";
 import { UpdatePollInput } from "./poll.schema.js";
-import { unescape } from "node:querystring";
+
 
 export type DatabaseTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
@@ -67,7 +68,12 @@ export class PollRepository  {
             allowAnonymous: polls.allowAnonymous,
             createdAt: polls.createdAt,
             updatedAt: polls.updatedAt,
-        }).from(polls).where(eq(polls.userId, userId)).orderBy(desc(polls.createdAt));
+            voteCount: sql<number>`count(${votes.id})::int`,
+        }).from(polls)
+            .leftJoin(votes, eq(votes.pollId, polls.id))
+            .where(eq(polls.userId, userId))
+            .groupBy(polls.id, polls.userId, polls.title, polls.description, polls.status, polls.allowAnonymous, polls.createdAt, polls.updatedAt)
+            .orderBy(desc(polls.createdAt));
 
         if (pollResults.length === 0) return [];
 
