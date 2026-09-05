@@ -36,6 +36,10 @@ export function createPollRouter({
     pollController.getPolls,
   );
   router.get(
+    "/trending",
+    pollController.getTrendingPolls,
+  );
+  router.get(
     "/:pollId",
     validate(pollIdParamsSchema, "params"),
     // Optional auth: anonymous viewers are allowed, but a valid session

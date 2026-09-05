@@ -4,85 +4,73 @@ import * as React from "react"
 
 import { NavMain, type NavMainItem } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
+import { useCurrentUser } from "@/src/features/auth/hooks/use-current-user"
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { LayoutDashboardIcon, VoteIcon, PlusCircleIcon, UserIcon, BarChart3Icon } from "lucide-react"
-
-export type DashboardView = "dashboard" | "polls" | "create" | "profile"
-
-interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
-  activeView?: DashboardView
-  onViewChange?: (view: DashboardView) => void
-}
+import {
+  CompassIcon,
+  LayoutDashboardIcon,
+  PlusCircleIcon,
+  VoteIcon,
+} from "lucide-react";
 
 const data = {
-  user: {
-    name: "My account",
-    email: "you@example.com",
-    avatar: "",
-  },
-  teams: [
-    {
-      name: "Polling System",
-      logo: <BarChart3Icon />,
-      plan: "Free",
-    },
-  ],
-  navMain: [
+  menu: [
     {
       title: "Dashboard",
       url: "/dashboard",
-      view: "dashboard" as const,
       icon: <LayoutDashboardIcon />,
     },
     {
-      title: "My Polls",
+      title: "Explore",
       url: "/polls",
-      view: "polls" as const,
+      icon: <CompassIcon />,
+    },
+    {
+      title: "My Polls",
+      url: "/polls/mine",
       icon: <VoteIcon />,
     },
     {
-      title: "Create poll",
+      title: "Create Poll",
       url: "/polls/create",
-      view: "create" as const,
       icon: <PlusCircleIcon />,
-    },
-    {
-      title: "Profile",
-      url: "/profile",
-      view: "profile" as const,
-      icon: <UserIcon />,
     },
   ] satisfies NavMainItem[],
 }
 
-export function AppSidebar({
-  activeView,
-  onViewChange,
-  ...props
-}: AppSidebarProps) {
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { data: currentUser, isPending } = useCurrentUser()
+
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
-      </SidebarHeader>
       <SidebarContent>
-        <NavMain
-          items={data.navMain}
-          activeView={activeView}
-          onViewChange={(view) => onViewChange?.(view as DashboardView)}
-        />
+        <NavMain label="Menu" items={data.menu} />
       </SidebarContent>
+
       <SidebarFooter>
-        <NavUser user={data.user} />
+        {isPending || !currentUser ? (
+          <SidebarMenuPlaceholder />
+        ) : (
+          <NavUser
+            user={{
+              name: currentUser.displayName,
+              email: currentUser.email,
+              avatar: "",
+            }}
+          />
+        )}
       </SidebarFooter>
+
       <SidebarRail />
     </Sidebar>
   )
+}
+
+function SidebarMenuPlaceholder() {
+  return <div className="h-12 animate-pulse rounded-lg bg-sidebar-accent" />
 }

@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import {
   Collapsible,
   CollapsibleContent,
@@ -10,6 +11,7 @@ import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
@@ -23,7 +25,7 @@ export type NavMainItem = {
   url: string
   icon?: React.ReactNode
   isActive?: boolean
-  view?: string
+  badge?: React.ReactNode
   items?: {
     title: string
     url: string
@@ -32,14 +34,15 @@ export type NavMainItem = {
 
 interface NavMainProps {
   items: NavMainItem[]
-  activeView?: string
-  onViewChange?: (view: string) => void
+  label?: string
 }
 
-export function NavMain({ items, activeView, onViewChange }: NavMainProps) {
+export function NavMain({ items, label = "Navigate" }: NavMainProps) {
+  const pathname = usePathname()
+
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Navigate</SidebarGroupLabel>
+      <SidebarGroupLabel>{label}</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) =>
           item.items && item.items.length > 0 ? (
@@ -68,26 +71,17 @@ export function NavMain({ items, activeView, onViewChange }: NavMainProps) {
                 </SidebarMenuSub>
               </CollapsibleContent>
             </Collapsible>
-          ) : item.view ? (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton
-                tooltip={item.title}
-                isActive={activeView === item.view}
-                onClick={() => onViewChange?.(item.view!)}
-              >
-                {item.icon}
-                <span>{item.title}</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
           ) : (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton
                 tooltip={item.title}
+                isActive={item.isActive ?? pathname === item.url}
                 render={<Link href={item.url} />}
               >
                 {item.icon}
                 <span>{item.title}</span>
               </SidebarMenuButton>
+              {item.badge ? <SidebarMenuBadge>{item.badge}</SidebarMenuBadge> : null}
             </SidebarMenuItem>
           )
         )}

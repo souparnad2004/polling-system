@@ -20,6 +20,10 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { ChevronsUpDownIcon, LogOutIcon } from "lucide-react"
+import { useLogout } from "@/src/features/auth/hooks/use-logout"
+import { toast } from "./ui/toast"
+import { useRouter } from "next/navigation"
+
 
 export function NavUser({
   user,
@@ -30,6 +34,24 @@ export function NavUser({
     avatar: string
   }
 }) {
+  const logout = useLogout();
+  const router = useRouter();
+
+  const onLogout = () => {
+    logout.mutate(undefined, {
+      onSuccess: () => {
+        router.replace("/");
+      },
+      onError: (error) => {
+        toast.add({
+          title: "Error",
+          description: error.message,
+          type: "error",
+        });
+      },
+    });
+
+  }
   const { isMobile } = useSidebar()
   return (
     <SidebarMenu>
@@ -42,7 +64,7 @@ export function NavUser({
           >
             <Avatar>
               {user.avatar ? <AvatarImage src={user.avatar} alt={user.name} /> : null}
-              <AvatarFallback>A</AvatarFallback>
+              <AvatarFallback>{user.email.at(0)?.toLocaleUpperCase()}</AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-medium">{user.name}</span>
@@ -62,7 +84,7 @@ export function NavUser({
             >
               <Avatar>
                 {user.avatar ? <AvatarImage src={user.avatar} alt={user.name} /> : null}
-                <AvatarFallback>A</AvatarFallback>
+                <AvatarFallback>{user.email.at(0)?.toLocaleUpperCase()}</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.name}</span>
@@ -70,9 +92,8 @@ export function NavUser({
               </div>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <LogOutIcon
-              />
+            <DropdownMenuItem onClick={onLogout} disabled={logout.isPending}>
+              <LogOutIcon />
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>

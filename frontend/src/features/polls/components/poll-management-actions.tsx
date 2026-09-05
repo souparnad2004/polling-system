@@ -1,6 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { LockIcon, SendIcon, Trash2Icon } from "lucide-react";
 
 import {
   useClosePoll,
@@ -28,35 +30,52 @@ export function PollManagementActions({
     deleteMutation.isPending;
 
   return (
-    <div className="flex flex-wrap gap-2">
-      {poll.status === "draft" && (
-        <Button
-          disabled={isPending}
-          onClick={() => publishMutation.mutate(poll.id)}
-        >
-          Publish
-        </Button>
-      )}{" "}
+    <Card className="border-primary/15 bg-card/80 shadow-sm">
+      <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+        <div className="min-w-0">
+          <p className="text-sm font-semibold">Manage poll</p>
+          <p className="text-sm text-muted-foreground">
+            Update the poll status or remove this poll.
+          </p>
+        </div>
 
-      {poll.status === "published" && (
-        <Button
-          variant="outline"
-          disabled={isPending}
-          onClick={() => closeMutation.mutate(poll.id)}
-        >
-          Close poll
-        </Button>
-      )}{" "}
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          {poll.status === "draft" && (
+            <Button
+              className="w-full sm:w-auto cursor-pointer"
+              disabled={isPending}
+              onClick={() => publishMutation.mutate(poll.id)}
+            >
+              <SendIcon />
+              Publish
+            </Button>
+          )}
 
-      {poll.status === "draft" && (
-        <Button
-          variant="destructive"
-          disabled={isPending}
-          onClick={() => deleteMutation.mutate(poll.id)}
-        >
-          Delete
-        </Button>
-      )}
-    </div>
+          {poll.status === "published" && (
+            <Button
+              variant="outline"
+              className="w-full sm:w-auto cursor-pointer"
+              disabled={isPending}
+              onClick={() => closeMutation.mutate(poll.id)}
+            >
+              <LockIcon />
+              Close poll
+            </Button>
+          )}
+
+          {poll.status === "draft" && (
+            <Button
+              variant="destructive"
+              className="w-full sm:w-auto cursor-pointer"
+              disabled={isPending}
+              onClick={() => deleteMutation.mutate(poll.id)}
+            >
+              <Trash2Icon />
+              Delete
+            </Button>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

@@ -35,6 +35,14 @@ export function usePollDetail(pollId: string) {
       queryClient.invalidateQueries({
         queryKey: pollKeys.results(pollId),
       });
+
+      queryClient.invalidateQueries({
+        queryKey: pollKeys.detail(pollId),
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: pollKeys.analytics(pollId),
+      })
     },
     onError: (error) => {
       toast.add({

@@ -33,9 +33,9 @@ export function ProtectedPollPage({ pollId }: ProtectedPollPageProps) {
   }
 
   return (
-    <main>
+    <main className="space-y-4 pb-8">
       {pollQuery.data.userId === currentUser?.id && (
-        <div className="mx-auto max-w-2xl px-6 pt-6">
+        <div className="mx-auto max-w-2xl px-4 pt-6 pb-4 sm:px-6">
           <PollManagementActions
             poll={pollQuery.data}
             onDeleted={() => {
