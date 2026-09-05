@@ -36,6 +36,10 @@ export class PollService {
         return this.pollRepository.findByUserId(userId);
     }
 
+    async getTrendingPolls() {
+        return this.pollRepository.findTrending();
+    }
+
     async updatePoll(pollId: string, userId: string, input: UpdatePollInput) {
         const poll = await this.pollRepository.findById(pollId);
 

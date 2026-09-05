@@ -3,6 +3,7 @@ import { db } from "../../infrastructure/database/client.js";
 import { votes } from "../../infrastructure/database/schema/votes.js";
 import { polls } from "../../infrastructure/database/schema/polls.js";
 import { pollOptions } from "../../infrastructure/database/schema/pollOptions.js";
+import { users } from "../../infrastructure/database/schema/users.js";
 import { UpdatePollInput } from "./poll.schema.js";
 
 
@@ -87,6 +88,50 @@ export class PollRepository  {
             createdAt: pollOptions.createdAt,
             updatedAt: pollOptions.updatedAt,
         }).from(pollOptions).where(inArray(pollOptions.pollId, pollIds)).orderBy(asc(pollOptions.position));
+
+        const optionsByPoll = new Map<string, typeof options>();
+        for (const option of options) {
+            const existing = optionsByPoll.get(option.pollId) ?? [];
+            existing.push(option);
+            optionsByPoll.set(option.pollId, existing);
+        }
+
+        return pollResults.map((poll) => ({
+            ...poll,
+            options: optionsByPoll.get(poll.id) ?? [],
+        }));
+    }
+
+    async findTrending(limit = 50) {
+        const pollResults = await db.select({
+            id: polls.id,
+            userId: polls.userId,
+            title: polls.title,
+            description: polls.description,
+            status: polls.status,
+            allowAnonymous: polls.allowAnonymous,
+            createdAt: polls.createdAt,
+            updatedAt: polls.updatedAt,
+            voteCount: sql<number>`count(${votes.id})::int`,
+            authorName: users.displayName,
+        }).from(polls)
+            .innerJoin(users, eq(users.id, polls.userId))
+            .leftJoin(votes, eq(votes.pollId, polls.id))
+            .where(eq(polls.status, "published"))
+            .groupBy(polls.id, polls.userId, polls.title, polls.description, polls.status, polls.allowAnonymous, polls.createdAt, polls.updatedAt, users.displayName)
+            .orderBy(desc(sql`count(${votes.id})`), desc(polls.createdAt))
+            .limit(limit);
+
+        if (pollResults.length === 0) return [];
+
+        const pollIds = pollResults.map((poll) => poll.id);
+        const options = await db.select({
+            id: pollOptions.id,
+            pollId: pollOptions.pollId,
+            text: pollOptions.option,
+        }).from(pollOptions)
+            .where(inArray(pollOptions.pollId, pollIds))
+            .orderBy(asc(pollOptions.position));
 
         const optionsByPoll = new Map<string, typeof options>();
         for (const option of options) {
