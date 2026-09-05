@@ -11,6 +11,7 @@ export interface Poll {
   status: "published" | "draft" | "closed";
   options: PollOption[];
   voteCount?: number;
+  authorName?: string | null;
   createdAt?: string;
 }
 

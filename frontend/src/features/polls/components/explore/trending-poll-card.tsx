@@ -45,6 +45,9 @@ export function TrendingPollCard({ poll, rank }: TrendingPollCardProps) {
             <CardTitle className="line-clamp-2 text-base">
               {poll.title}
             </CardTitle>
+            <p className="text-xs text-muted-foreground">
+              By {poll.authorName || "Anonymous"}
+            </p>
           </CardHeader>
 
           <CardContent className="flex flex-col gap-4">

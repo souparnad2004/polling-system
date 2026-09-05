@@ -16,13 +16,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import { PollsShell } from "../components/polls-layout";
 import { TrendingPollCard } from "../components/explore/trending-poll-card";
 import { Poll } from "../types/poll.types";
-import { usePolls } from "../hooks/use-polls";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
-import { ExploreHeader } from "../components/explore/explore-header";
+import { useTrendingPolls } from "../hooks/use-polls";
+import { PollsShell } from "../components/polls-layout";
 
 const CATEGORIES = [
   "Technology",
@@ -38,13 +35,13 @@ const CATEGORIES = [
 ];
 
 export function PollsPage() {
-  const pollsQuery = usePolls();
+  const pollsQuery = useTrendingPolls();
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   const polls = pollsQuery.data ?? [];
-  const trendingPolls = polls.filter((poll) => poll.status === "published");
+  const trendingPolls = polls;
   const normalizedQuery = query.trim().toLowerCase();
   const visiblePolls = trendingPolls.filter((poll) => {
     const searchable = `${poll.title} ${poll.description ?? ""}`.toLowerCase();
@@ -52,15 +49,8 @@ export function PollsPage() {
   });
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
-
-      <SidebarInset>
-        <ExploreHeader
-          onFocusSearch={() => searchInputRef.current?.focus()}
-        />
-
-        <main className="flex flex-1 flex-col gap-10 p-4 md:p-8">
+    <PollsShell onFocusSearch={() => searchInputRef.current?.focus()}>
+      <main className="flex flex-1 flex-col gap-10 p-4 md:p-8">
           <section className="flex flex-col gap-1.5">
             <h1 className="text-2xl font-semibold tracking-tight">
               Discover Polls
@@ -168,9 +158,8 @@ export function PollsPage() {
               ))}
             </div>
           </section>
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
+      </main>
+    </PollsShell>
   );
 }
 

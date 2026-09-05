@@ -43,6 +43,11 @@ export async function getPolls(): Promise<Poll[]> {
   return response.polls;
 }
 
+export async function getTrendingPolls(): Promise<Poll[]> {
+  const response = await apiClient<{ polls: Poll[] }>(`/api/polls/trending`);
+  return response.polls;
+}
+
 export async function createPoll(input: CreatePollInput): Promise<Poll> {
   const response = await apiClient<{ poll: Poll }>(`/api/polls/create`, {
     method: "POST",
