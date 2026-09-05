@@ -8,6 +8,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetTitle,
   SheetTrigger,
@@ -139,13 +140,11 @@ function MobileNav({ signedIn }: { signedIn: boolean }) {
           className="flex flex-col gap-1 px-4 py-4"
         >
           {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              className="rounded-2xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            >
-              {link.label}
-            </a>
+            <SheetClose key={link.href} render={<a href={link.href} />}>
+              <span className="block rounded-2xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+                {link.label}
+              </span>
+            </SheetClose>
           ))}
         </nav>
 

@@ -4,8 +4,8 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  Cell,
   LabelList,
+  Rectangle,
   XAxis,
   YAxis,
 } from "recharts";
@@ -44,10 +44,11 @@ interface ResultsChartProps {
 
 export function ResultsChart({ results, isPending, isError, onRetry }: ResultsChartProps) {
   const options = results?.options ?? [];
-  const data = options.map((option) => ({
+  const data = options.map((option, index) => ({
     optionId: option.optionId,
     name: option.option,
     votes: option.voteCount,
+    color: CHART_COLORS[index % CHART_COLORS.length],
   }));
   const totalVotes = results?.totalVotes ?? 0;
 
@@ -102,11 +103,17 @@ export function ResultsChart({ results, isPending, isError, onRetry }: ResultsCh
                     value.length > 16 ? `${value.slice(0, 15)}…` : value
                   }
                 />
-                <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-                <Bar dataKey="votes" radius={[0, 4, 4, 0]} barSize={26}>
-                  {data.map((entry, index) => (
-                    <Cell key={entry.optionId} fill={CHART_COLORS[index % CHART_COLORS.length]} />
-                  ))}
+                <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+                <Bar dataKey="votes" 
+                  radius={[0, 4, 4, 6]}
+                  barSize={26}
+                  shape={(props) => {
+                    <Rectangle 
+                      {...props}
+                      fill={props.payload.fill}
+                    />
+                  }}
+                >
                   <LabelList
                     dataKey="votes"
                     position="right"

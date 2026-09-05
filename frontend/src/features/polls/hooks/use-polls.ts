@@ -29,5 +29,6 @@ export function usePollAnalytics(pollId: string) {
   return useQuery({
     queryKey: pollKeys.analytics(pollId),
     queryFn: () => getPollAnalytics(pollId),
+    
   });
 }

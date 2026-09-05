@@ -14,7 +14,7 @@ const items = [
     icon: KeyRoundIcon,
     title: "Secure authentication",
     description:
-      "Password hashing, signed httpOnly session cookies, and rate-limited login attempts.",
+      "Password hashing, HttpOnly session cookies, and rate-limited login attempts.",
   },
   {
     icon: ServerIcon,

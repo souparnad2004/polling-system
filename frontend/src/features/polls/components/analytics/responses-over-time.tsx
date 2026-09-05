@@ -1,6 +1,6 @@
 "use client";
 
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 import {
@@ -62,7 +62,7 @@ export function ResponsesOverTime({ timeline }: ResponsesOverTimeProps) {
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
-                tickFormatter={(value: string) => format(new Date(value), "MMM d")}
+                tickFormatter={(value: string) => format(new Date(parseISO(value)), "MMM d")}
                 minTickGap={24}
               />
               <YAxis tickLine={false} axisLine={false} tickMargin={8} allowDecimals={false} />
