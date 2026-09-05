@@ -1,5 +1,7 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
+
 import { Button } from "@/components/ui/button";
 import { MoonIcon, SunIcon } from "lucide-react";
 
@@ -7,6 +9,11 @@ import { useTheme } from "@/components/theme-provider";
 
 export function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
+  const hasMounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
 
   return (
     <Button
@@ -15,7 +22,11 @@ export function ThemeToggle() {
       size="icon"
       onClick={toggleTheme}
       aria-label={
-        theme === "dark" ? "Switch to light theme" : "Switch to dark theme"
+        hasMounted
+          ? theme === "dark"
+            ? "Switch to light theme"
+            : "Switch to dark theme"
+          : "Toggle theme"
       }
     >
       <SunIcon className="hidden dark:block" />

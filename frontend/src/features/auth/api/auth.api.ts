@@ -32,3 +32,11 @@ export async function getCurrentUser() {
 
     return response.user;
 }
+
+export async function logout() {
+    const response = await apiClient("/api/auth/logout", {
+        method: "POST"
+    });
+
+    return response;
+}

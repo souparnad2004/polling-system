@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui/toast";
 
 import { LoginForm } from "../components/login-form";
+import { GuestOnlyRoute } from "../components/guest-only-route";
 
 export function LoginPage() {
   const router = useRouter();
@@ -20,8 +21,10 @@ export function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-svh items-center justify-center px-4 py-12">
-      <LoginForm onSuccess={handleSuccess} />
-    </main>
+    <GuestOnlyRoute>
+      <main className="flex min-h-svh items-center justify-center px-4 py-12">
+        <LoginForm onSuccess={handleSuccess} />
+      </main>
+    </GuestOnlyRoute>
   );
 }

@@ -2,13 +2,13 @@
 
 import { ReactNode } from "react";
 
+import { AppHeader } from "@/components/app-header";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
-import { ExploreHeader } from "./explore/explore-header";
 
 interface PollsShellProps {
-  onFocusSearch: () => void;
+  onFocusSearch?: () => void;
   children: ReactNode;
 }
 
@@ -20,7 +20,7 @@ export function PollsShell({ onFocusSearch, children }: PollsShellProps) {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <ExploreHeader onFocusSearch={onFocusSearch} />
+        <AppHeader onFocusSearch={onFocusSearch} />
         {children}
       </SidebarInset>
     </SidebarProvider>

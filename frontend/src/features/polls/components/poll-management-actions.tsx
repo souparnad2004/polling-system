@@ -42,7 +42,7 @@ export function PollManagementActions({
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           {poll.status === "draft" && (
             <Button
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto cursor-pointer"
               disabled={isPending}
               onClick={() => publishMutation.mutate(poll.id)}
             >
@@ -54,7 +54,7 @@ export function PollManagementActions({
           {poll.status === "published" && (
             <Button
               variant="outline"
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto cursor-pointer"
               disabled={isPending}
               onClick={() => closeMutation.mutate(poll.id)}
             >
@@ -66,7 +66,7 @@ export function PollManagementActions({
           {poll.status === "draft" && (
             <Button
               variant="destructive"
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto cursor-pointer"
               disabled={isPending}
               onClick={() => deleteMutation.mutate(poll.id)}
             >

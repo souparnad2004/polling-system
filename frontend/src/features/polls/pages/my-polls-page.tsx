@@ -11,7 +11,6 @@ import {
   VoteIcon,
 } from "lucide-react";
 
-import { AppSidebar } from "@/components/app-sidebar";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -32,14 +31,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  SidebarInset,
-  SidebarProvider,
-} from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import { ExploreHeader } from "../components/explore/explore-header";
 import { MyPollRow } from "../components/my-poll-row";
+import { PollsShell } from "../components/polls-layout";
 import { usePolls } from "../hooks/use-polls";
 
 const STATUS_OPTIONS = [
@@ -111,15 +106,10 @@ export function MyPollsPage() {
     });
 
   return (
-    <SidebarProvider>
-      <AppSidebar/>
-
-      <SidebarInset>
-        <ExploreHeader
-          onFocusSearch={() => document.getElementById("mine-search")?.focus()}
-        />
-
-        <main className="flex flex-1 flex-col gap-6 p-4 md:p-8">
+    <PollsShell
+      onFocusSearch={() => document.getElementById("mine-search")?.focus()}
+    >
+      <main className="flex flex-1 flex-col gap-6 p-4 md:p-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div className="flex flex-col gap-1.5">
               <h1 className="text-2xl font-semibold tracking-tight">My Polls</h1>
@@ -227,9 +217,8 @@ export function MyPollsPage() {
               ))}
             </div>
           )}
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
+      </main>
+    </PollsShell>
   );
 }
 

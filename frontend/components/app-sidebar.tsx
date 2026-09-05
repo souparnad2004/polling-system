@@ -4,6 +4,7 @@ import * as React from "react"
 
 import { NavMain, type NavMainItem } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
+import { useCurrentUser } from "@/src/features/auth/hooks/use-current-user"
 import {
   Sidebar,
   SidebarContent,
@@ -18,11 +19,6 @@ import {
 } from "lucide-react";
 
 const data = {
-  user: {
-    name: "My account",
-    email: "you@example.com",
-    avatar: "",
-  },
   menu: [
     {
       title: "Dashboard",
@@ -48,6 +44,8 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { data: currentUser, isPending } = useCurrentUser()
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarContent>
@@ -55,10 +53,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
 
       <SidebarFooter>
-        <NavUser user={data.user} />
+        {isPending || !currentUser ? (
+          <SidebarMenuPlaceholder />
+        ) : (
+          <NavUser
+            user={{
+              name: currentUser.displayName,
+              email: currentUser.email,
+              avatar: "",
+            }}
+          />
+        )}
       </SidebarFooter>
 
       <SidebarRail />
     </Sidebar>
   )
+}
+
+function SidebarMenuPlaceholder() {
+  return <div className="h-12 animate-pulse rounded-lg bg-sidebar-accent" />
 }

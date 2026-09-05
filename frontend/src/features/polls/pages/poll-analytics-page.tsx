@@ -5,18 +5,16 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { ArrowLeftIcon } from "lucide-react";
 
-import { AppSidebar } from "@/components/app-sidebar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { AnalyticsStatCards } from "../components/analytics/analytics-stat-cards";
 import { RecentActivity } from "../components/analytics/recent-activity";
 import { ResponsesOverTime } from "../components/analytics/responses-over-time";
 import { ResultsChart } from "../components/analytics/results-chart";
-import { ExploreHeader } from "../components/explore/explore-header";
+import { PollsShell } from "../components/polls-layout";
 import { usePollAnalytics } from "../hooks/use-polls";
 import { usePollDetail } from "../hooks/use-poll-detail";
 
@@ -39,13 +37,8 @@ export function PollAnalyticsPage({ pollId }: PollAnalyticsPageProps) {
   const analytics = analyticsQuery.data;
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
-
-      <SidebarInset>
-        <ExploreHeader onFocusSearch={() => {}} />
-
-        <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 p-4 md:p-8">
+    <PollsShell>
+      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 p-4 md:p-8">
           <Link
             href="/polls/mine"
             className="inline-flex w-fit items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -110,9 +103,8 @@ export function PollAnalyticsPage({ pollId }: PollAnalyticsPageProps) {
               <RecentActivity votes={analytics.recentVotes} />
             </>
           ) : null}
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
+      </main>
+    </PollsShell>
   );
 }
 

@@ -8,11 +8,11 @@ import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
-interface ExploreHeaderProps {
-  onFocusSearch: () => void
+interface AppHeaderProps {
+  onFocusSearch?: () => void
 }
 
-export function ExploreHeader({ onFocusSearch }: ExploreHeaderProps) {
+export function AppHeader({ onFocusSearch }: AppHeaderProps) {
   return (
     <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 border-b bg-background/80 px-4 backdrop-blur-xl">
       <SidebarTrigger className="-ml-1" />
@@ -26,27 +26,29 @@ export function ExploreHeader({ onFocusSearch }: ExploreHeaderProps) {
           <BarChart3Icon className="size-3.5" />
         </div>
         <span className="hidden text-sm font-semibold tracking-tight sm:inline">
-          Polly
+          Pollly
         </span>
       </div>
 
       <div className="ml-auto flex items-center gap-1.5">
-        <Tooltip>
-          <TooltipTrigger
-            render={
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                aria-label="Search polls"
-                onClick={onFocusSearch}
-              />
-            }
-          >
-            <SearchIcon />
-          </TooltipTrigger>
-          <TooltipContent>Search polls</TooltipContent>
-        </Tooltip>
+        {onFocusSearch && (
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Search polls"
+                  onClick={onFocusSearch}
+                />
+              }
+            >
+              <SearchIcon />
+            </TooltipTrigger>
+            <TooltipContent>Search polls</TooltipContent>
+          </Tooltip>
+        )}
 
         <ThemeToggle />
 
