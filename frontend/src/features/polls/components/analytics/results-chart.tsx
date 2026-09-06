@@ -107,11 +107,13 @@ export function ResultsChart({ results, isPending, isError, onRetry }: ResultsCh
                 <Bar dataKey="votes" 
                   radius={[0, 4, 4, 6]}
                   barSize={26}
-                  shape={(props) => {
-                    <Rectangle 
-                      {...props}
-                      fill={props.payload.fill}
-                    />
+                                    shape={(props) => {
+                    return (
+                      <Rectangle 
+                        {...props}
+                        fill={props.payload.fill}
+                      />
+                    );
                   }}
                 >
                   <LabelList
