@@ -10,25 +10,30 @@ import { UpdatePollInput } from "./poll.schema.js";
 export type DatabaseTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 export class PollRepository  {
-    async createPoll(tx: DatabaseTransaction, input: {userId: string; title: string; description?: string; allowAnonymous?: boolean}) {
+    async createPoll(tx: DatabaseTransaction, input: {userId: string; title: string; description?: string; allowAnonymous?: boolean; status?: "draft" | "published"}) {
         const [result] = await tx.insert(polls).values({
             userId: input.userId,
             title: input.title,
             description: input.description,
             allowAnonymous: input.allowAnonymous,
+            ...(input.status ? {status: input.status} : {}),
         }).returning();
 
         return result;
     }
 
     async createOptions(tx: DatabaseTransaction, input: {pollId: string; options: string[]}) {
-        return tx.insert(pollOptions).values(
+        const results = await tx.insert(pollOptions).values(
             input.options.map((option, position) => ({
                 pollId: input.pollId,
                 option,
                 position                
             }))
-        ).returning()
+        ).returning();
+
+        // Alias option -> text so every poll payload has the same shape as the
+        // frontend PollOption type (findById/findByUserId/findTrending).
+        return results.map(({ option, ...rest }) => ({ ...rest, text: option }));
     }
 
     async findById(pollId: string, tx?: DatabaseTransaction) {
@@ -50,7 +55,7 @@ export class PollRepository  {
         const options = await query.select({
             id: pollOptions.id,
             pollId: pollOptions.pollId,
-            option: pollOptions.option,
+            text: pollOptions.option,
             position: pollOptions.position,
             createdAt: pollOptions.createdAt,
             updatedAt: pollOptions.updatedAt
@@ -83,7 +88,7 @@ export class PollRepository  {
         const options = await db.select({
             id: pollOptions.id,
             pollId: pollOptions.pollId,
-            option: pollOptions.option,
+            text: pollOptions.option,
             position: pollOptions.position,
             createdAt: pollOptions.createdAt,
             updatedAt: pollOptions.updatedAt,

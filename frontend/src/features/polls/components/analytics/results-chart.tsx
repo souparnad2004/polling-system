@@ -104,17 +104,18 @@ export function ResultsChart({ results, isPending, isError, onRetry }: ResultsCh
                   }
                 />
                 <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-                <Bar dataKey="votes" 
+                {/* payload is the per-bar data row ({ optionId, name, votes, color }) —
+                    it has no "fill" key, so use ChartContainer's theme var instead. */}
+                <Bar
+                  dataKey="votes"
                   radius={[0, 4, 4, 6]}
                   barSize={26}
-                                    shape={(props) => {
-                    return (
-                      <Rectangle 
-                        {...props}
-                        fill={props.payload.fill}
-                      />
-                    );
-                  }}
+                  shape={(props) => (
+                    <Rectangle
+                      {...props}
+                      fill={`var(--color-${props.payload.optionId})`}
+                    />
+                  )}
                 >
                   <LabelList
                     dataKey="votes"

@@ -1,8 +1,10 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { LockIcon, SendIcon, Trash2Icon } from "lucide-react";
+import { LockIcon, PencilLineIcon, SendIcon, Trash2Icon } from "lucide-react";
 
 import {
   useClosePoll,
@@ -20,6 +22,7 @@ export function PollManagementActions({
   poll,
   onDeleted,
 }: PollManagementActionsProps) {
+  const router = useRouter();
   const publishMutation = usePublishPoll();
   const closeMutation = useClosePoll();
   const deleteMutation = useDeletePoll(onDeleted);
@@ -40,6 +43,17 @@ export function PollManagementActions({
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          {poll.status === "draft" && (
+            <Button
+              variant="outline"
+              className="w-full sm:w-auto cursor-pointer"
+              onClick={() => router.push(`/polls/${poll.id}/edit`)}
+            >
+              <PencilLineIcon />
+              Edit
+            </Button>
+          )}
+
           {poll.status === "draft" && (
             <Button
               className="w-full sm:w-auto cursor-pointer"

@@ -10,7 +10,7 @@ export class PollService {
 
     async createPoll(userId: string, input: CreatePollInput) {
         return db.transaction(async (tx) => {
-            const poll = await this.pollRepository.createPoll(tx, {userId, title: input.title, description: input.description, allowAnonymous: input.allowAnonymous});
+            const poll = await this.pollRepository.createPoll(tx, {userId, title: input.title, description: input.description, allowAnonymous: input.allowAnonymous, status: input.status});
             const options = await this.pollRepository.createOptions(tx, {options: input.options, pollId: poll.id});
             return {...poll, options}
         })

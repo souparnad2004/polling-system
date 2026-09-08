@@ -5,6 +5,9 @@ export const createPollSchema = z.object({
     description: z.string().trim().min(1).max(2000).optional(),
     options: z.array(z.string().trim().min(1).max(200)).min(2).max(10),
     allowAnonymous: z.boolean().optional(),
+    // "draft" (default) saves without publishing; "published" creates the poll
+    // live immediately so voters can react to the shared link right away.
+    status: z.enum(["draft", "published"]).optional(),
 })
 
 export type CreatePollInput = z.infer<typeof createPollSchema>;

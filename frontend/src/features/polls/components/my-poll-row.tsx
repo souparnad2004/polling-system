@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { formatDistanceToNow } from "date-fns";
 import {
   GlobeIcon,
   LockIcon,
   MoreHorizontalIcon,
+  PencilLineIcon,
   SendIcon,
   Trash2Icon,
 } from "lucide-react";
@@ -100,6 +102,7 @@ export function MyPollRow({ poll }: MyPollRowProps) {
 }
 
 function PollRowActions({ poll }: { poll: Poll }) {
+  const router = useRouter();
   const publishMutation = usePublishPoll();
   const closeMutation = useClosePoll();
   const deleteMutation = useDeletePoll();
@@ -125,6 +128,16 @@ function PollRowActions({ poll }: { poll: Poll }) {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-fit">
+        {poll.status === "draft" && (
+          <DropdownMenuItem
+            disabled={isPending}
+            onClick={() => router.push(`/polls/${poll.id}/edit`)}
+          >
+            <PencilLineIcon />
+            Edit poll
+          </DropdownMenuItem>
+        )}
+
         {poll.status === "draft" && (
           <DropdownMenuItem
             disabled={isPending}
