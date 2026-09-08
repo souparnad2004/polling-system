@@ -27,4 +27,6 @@ export const createPollSchema = z.object({
     .max(10, "Maximum 10 options allowed"),
 
   allowAnonymous: z.boolean().optional(),
+  allowVoteChange: z.boolean().optional(),
+  status: z.enum(["draft", "published"]).optional(),
 });

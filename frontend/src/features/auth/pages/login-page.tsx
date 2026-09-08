@@ -1,17 +1,22 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui/toast";
 
 import { LoginForm } from "../components/login-form";
 import { GuestOnlyRoute } from "../components/guest-only-route";
 
 export function LoginPage() {
+  const router = useRouter();
+
   function handleSuccess() {
     toast.add({
       title: "Success",
       description: "Signed in successfully",
       type: "success",
     });
+
+    router.replace("/dashboard");
   }
 
   return (

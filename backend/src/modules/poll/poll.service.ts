@@ -10,7 +10,7 @@ export class PollService {
 
     async createPoll(userId: string, input: CreatePollInput) {
         return db.transaction(async (tx) => {
-            const poll = await this.pollRepository.createPoll(tx, {userId, title: input.title, description: input.description, allowAnonymous: input.allowAnonymous});
+            const poll = await this.pollRepository.createPoll(tx, {userId, title: input.title, description: input.description, allowAnonymous: input.allowAnonymous, allowVoteChange: input.allowVoteChange, status: input.status});
             const options = await this.pollRepository.createOptions(tx, {options: input.options, pollId: poll.id});
             return {...poll, options}
         })
@@ -56,9 +56,9 @@ export class PollService {
             }
 
             // Only touch the polls row when a metadata field (title/description/
-            // allowAnonymous) is actually present; options-only updates skip the
+            // allowAnonymous/allowVoteChange) is actually present; options-only updates skip the
             // UPDATE.
-            if (input.title !== undefined || input.description !== undefined || input.allowAnonymous !== undefined) {
+            if (input.title !== undefined || input.description !== undefined || input.allowAnonymous !== undefined || input.allowVoteChange !== undefined) {
                 await this.pollRepository.updatePoll(tx, pollId, input);
             }
 

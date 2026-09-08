@@ -3,8 +3,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { toast } from "@/components/ui/toast";
+import { ApiError } from "@/lib/api/client";
 
-import { createVote, getPoll, getPollResults } from "../api/poll.api";
+import { changeVote, createVote, getPoll, getPollResults } from "../api/poll.api";
 import { pollKeys } from "./use-polls";
 import { usePollLiveResults } from "./use-poll-live-results";
 
@@ -24,11 +25,38 @@ export function usePollDetail(pollId: string) {
   usePollLiveResults(pollId);
 
   const voteMutation = useMutation({
-    mutationFn: (optionId: string) => createVote(pollId, optionId),
+    mutationFn: async ({
+      optionId,
+      isChange,
+    }: {
+      optionId: string;
+      isChange: boolean;
+    }) => {
+      if (!isChange) {
+        return createVote(pollId, optionId);
+      }
+
+      try {
+        return await changeVote(pollId, optionId);
+      } catch (error) {
+        // sessionStorage can outlive the anonymous voter cookie or an older
+        // server-side vote. Reconcile that stale client state by trying a
+        // normal first vote when the server cannot find the existing vote.
+        if (
+          error instanceof ApiError &&
+          error.status === 404 &&
+          error.message === "vote not found"
+        ) {
+          return createVote(pollId, optionId);
+        }
+
+        throw error;
+      }
+    },
     onSuccess: () => {
       toast.add({
         title: "Success",
-        description: "Vote cast successfully",
+        description: "Vote saved successfully",
         type: "success",
       });
 
@@ -56,8 +84,8 @@ export function usePollDetail(pollId: string) {
   return {
     pollQuery,
     resultsQuery,
-    vote: async (optionId: string) => {
-      await voteMutation.mutateAsync(optionId);
+    vote: async (optionId: string, isChange = false) => {
+      await voteMutation.mutateAsync({ optionId, isChange });
     },
   };
 }

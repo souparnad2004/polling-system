@@ -1,12 +1,16 @@
 "use client";
 
+import { useState } from "react";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { formatDistanceToNow } from "date-fns";
 import {
   GlobeIcon,
   LockIcon,
   MoreHorizontalIcon,
+  PencilLineIcon,
   SendIcon,
   Trash2Icon,
 } from "lucide-react";
@@ -36,6 +40,7 @@ import {
   usePublishPoll,
 } from "../hooks/use-poll-management";
 import type { Poll } from "../types/poll.types";
+import { DeletePollDialog } from "./delete-poll-dialog";
 
 const STATUS_VARIANT = {
   published: "default",
@@ -100,9 +105,12 @@ export function MyPollRow({ poll }: MyPollRowProps) {
 }
 
 function PollRowActions({ poll }: { poll: Poll }) {
+  const router = useRouter();
   const publishMutation = usePublishPoll();
   const closeMutation = useClosePoll();
   const deleteMutation = useDeletePoll();
+
+  const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const isPending =
     publishMutation.isPending ||
@@ -110,21 +118,32 @@ function PollRowActions({ poll }: { poll: Poll }) {
     deleteMutation.isPending;
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <button
-            type="button"
-            className={buttonVariants({ variant: "ghost", size: "icon" })}
-            disabled={isPending}
-            aria-label="Poll actions"
-          />
-        }
-      >
-        <MoreHorizontalIcon />
-      </DropdownMenuTrigger>
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={
+            <button
+              type="button"
+              className={buttonVariants({ variant: "ghost", size: "icon" })}
+              disabled={isPending}
+              aria-label="Poll actions"
+            />
+          }
+        >
+          <MoreHorizontalIcon />
+        </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-fit">
+        <DropdownMenuContent align="end" className="w-fit">
+        {poll.status === "draft" && (
+          <DropdownMenuItem
+            disabled={isPending}
+            onClick={() => router.push(`/polls/${poll.id}/edit`)}
+          >
+            <PencilLineIcon />
+            Edit poll
+          </DropdownMenuItem>
+        )}
+
         {poll.status === "draft" && (
           <DropdownMenuItem
             disabled={isPending}
@@ -164,20 +183,24 @@ function PollRowActions({ poll }: { poll: Poll }) {
           </DropdownMenuItem>
         )}
 
-        {poll.status === "draft" && (
-          <>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              variant="destructive"
-              disabled={isPending}
-              onClick={() => deleteMutation.mutate(poll.id)}
-            >
-              <Trash2Icon />
-              Delete poll
-            </DropdownMenuItem>
-          </>
-        )}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          variant="destructive"
+          disabled={isPending}
+          onClick={() => setDeleteDialogOpen(true)}
+        >
+          <Trash2Icon />
+          Delete poll
+        </DropdownMenuItem>
       </DropdownMenuContent>
-    </DropdownMenu>
+      </DropdownMenu>
+
+      <DeletePollDialog
+        poll={poll}
+        open={isDeleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={() => deleteMutation.mutate(poll.id)}
+      />
+    </>
   );
 }

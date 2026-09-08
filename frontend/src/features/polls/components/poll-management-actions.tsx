@@ -1,8 +1,12 @@
 "use client";
 
+import { useState } from "react";
+
+import { useRouter } from "next/navigation";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { LockIcon, SendIcon, Trash2Icon } from "lucide-react";
+import { LockIcon, PencilLineIcon, SendIcon, Trash2Icon } from "lucide-react";
 
 import {
   useClosePoll,
@@ -10,6 +14,7 @@ import {
   usePublishPoll,
 } from "../hooks/use-poll-management";
 import type { Poll } from "../types/poll.types";
+import { DeletePollDialog } from "./delete-poll-dialog";
 
 interface PollManagementActionsProps {
   poll: Poll;
@@ -20,9 +25,12 @@ export function PollManagementActions({
   poll,
   onDeleted,
 }: PollManagementActionsProps) {
+  const router = useRouter();
   const publishMutation = usePublishPoll();
   const closeMutation = useClosePoll();
   const deleteMutation = useDeletePoll(onDeleted);
+
+  const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const isPending =
     publishMutation.isPending ||
@@ -30,7 +38,8 @@ export function PollManagementActions({
     deleteMutation.isPending;
 
   return (
-    <Card className="border-primary/15 bg-card/80 shadow-sm">
+    <>
+      <Card className="border-primary/15 bg-card/80 shadow-sm">
       <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
         <div className="min-w-0">
           <p className="text-sm font-semibold">Manage poll</p>
@@ -40,6 +49,17 @@ export function PollManagementActions({
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          {poll.status === "draft" && (
+            <Button
+              variant="outline"
+              className="w-full sm:w-auto cursor-pointer"
+              onClick={() => router.push(`/polls/${poll.id}/edit`)}
+            >
+              <PencilLineIcon />
+              Edit
+            </Button>
+          )}
+
           {poll.status === "draft" && (
             <Button
               className="w-full sm:w-auto cursor-pointer"
@@ -63,19 +83,25 @@ export function PollManagementActions({
             </Button>
           )}
 
-          {poll.status === "draft" && (
-            <Button
-              variant="destructive"
-              className="w-full sm:w-auto cursor-pointer"
-              disabled={isPending}
-              onClick={() => deleteMutation.mutate(poll.id)}
-            >
-              <Trash2Icon />
-              Delete
-            </Button>
-          )}
+          <Button
+            variant="outline"
+            className="w-full sm:w-auto cursor-pointer"
+            disabled={isPending}
+            onClick={() => setDeleteDialogOpen(true)}
+          >
+            <Trash2Icon />
+            Delete
+          </Button>
         </div>
       </CardContent>
-    </Card>
+      </Card>
+
+      <DeletePollDialog
+        poll={poll}
+        open={isDeleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={() => deleteMutation.mutate(poll.id)}
+      />
+    </>
   );
 }

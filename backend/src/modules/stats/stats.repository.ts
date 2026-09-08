@@ -3,6 +3,7 @@ import { and, desc, eq, gte, sql } from "drizzle-orm";
 import { db } from "../../infrastructure/database/client.js";
 import { polls } from "../../infrastructure/database/schema/polls.js";
 import { votes } from "../../infrastructure/database/schema/votes.js";
+import { users } from "../../infrastructure/database/schema/users.js";
 
 export class StatsRepository {
     // Status breakdown for the user's polls (draft / published / closed).
@@ -83,7 +84,12 @@ export class StatsRepository {
         return db.select({
             createdAt: votes.createdAt,
             isAnonymous: sql<boolean>`${votes.userId} is null`,
-        }).from(votes).where(eq(votes.pollId, pollId))
+            // NULL for anonymous votes (their user_id is NULL, so the left
+            // join finds no row) and for auth users without a display_name.
+            username: users.displayName,
+        }).from(votes)
+            .leftJoin(users, eq(users.id, votes.userId))
+            .where(eq(votes.pollId, pollId))
             .orderBy(desc(votes.createdAt))
             .limit(limit);
     }

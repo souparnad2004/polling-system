@@ -29,7 +29,7 @@ import type { Poll, PollOption, PollResults } from "../types/poll.types";
 interface PollDetailProps {
   poll: Poll;
   results: PollResults;
-  onVote: (optionId: string) => Promise<void>;
+  onVote: (optionId: string, isChange?: boolean) => Promise<void>;
 }
 
 const STATUS_LABEL: Record<Poll["status"], string> = {
@@ -260,7 +260,8 @@ export function PollDetail({ poll, results, onVote }: PollDetailProps) {
   });
 
   const hasVoted = votedState.voted;
-  const canVote = poll.status === "published" && !hasVoted;
+  const canVote =
+    poll.status === "published" && (!hasVoted || poll.allowVoteChange !== false);
 
   const selectedOption = useMemo(
     () => poll.options.find((option) => option.id === selectedOptionId) ?? null,
@@ -348,7 +349,7 @@ export function PollDetail({ poll, results, onVote }: PollDetailProps) {
     setIsVoting(true);
 
     try {
-      await onVote(selectedOption.id);
+      await onVote(selectedOption.id, hasVoted);
 
       setVotedState({ voted: true, optionId: selectedOption.id });
 
@@ -360,6 +361,9 @@ export function PollDetail({ poll, results, onVote }: PollDetailProps) {
       } catch {
         // Storage can be unavailable (e.g. private mode); state still updates.
       }
+    } catch {
+      // The mutation displays the API error. Keep the event handler resolved so
+      // rejected vote requests do not appear as uncaught promise errors.
     } finally {
       setIsVoting(false);
     }
@@ -448,7 +452,7 @@ export function PollDetail({ poll, results, onVote }: PollDetailProps) {
                     isYourVote={isYourVote}
                     numLeaders={leaderCount}
                     selected={
-                      canVote
+                      canVote && selectedOptionId !== null
                         ? selectedOptionId === option.id
                         : hasVoted && votedState.optionId === option.id
                     }
@@ -535,7 +539,9 @@ export function PollDetail({ poll, results, onVote }: PollDetailProps) {
                       <span className="font-semibold text-foreground">
                         {votedOption.text}
                       </span>
-                      . Live results update below in real time.
+                      {poll.allowVoteChange === false
+                        ? ". This poll uses one-chance voting, so your choice is final."
+                        : ". You can change your choice while the poll is live; results update below in real time."}
                     </p>
                   </div>
                 </motion.div>

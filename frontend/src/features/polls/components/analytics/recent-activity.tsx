@@ -48,7 +48,15 @@ export function RecentActivity({ votes }: RecentActivityProps) {
                   <ActivityIcon className="size-4" />
                 </span>
                 <span className="text-sm">
-                  {vote.isAnonymous ? "Someone voted anonymously" : "Someone voted"}
+                  {vote.isAnonymous ? (
+                    "Someone voted anonymously"
+                  ) : vote.username ? (
+                    <>
+                      <span className="font-medium">{vote.username}</span> voted
+                    </>
+                  ) : (
+                    "Someone voted"
+                  )}
                 </span>
                 <span className="ml-auto flex items-center gap-1.5 text-xs tabular-nums text-muted-foreground">
                   <ClockIcon className="size-3.5" />

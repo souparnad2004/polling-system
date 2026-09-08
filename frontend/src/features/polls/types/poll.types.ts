@@ -9,6 +9,8 @@ export interface Poll {
   title: string;
   description?: string;
   status: "published" | "draft" | "closed";
+  allowAnonymous?: boolean;
+  allowVoteChange?: boolean;
   options: PollOption[];
   voteCount?: number;
   authorName?: string | null;
@@ -31,6 +33,9 @@ export interface PollAnalyticsTimelinePoint {
 export interface PollAnalyticsRecentVote {
   createdAt: string;
   isAnonymous: boolean;
+  // displayName of the authenticated voter; null/undefined when the vote was
+  // anonymous or the voter has not set a display name.
+  username?: string | null;
 }
 
 export interface PollAnalytics {
@@ -62,11 +67,16 @@ export interface CreatePollInput {
   description?: string;
   options: string[];
   allowAnonymous?: boolean;
+  allowVoteChange?: boolean;
+  status?: "draft" | "published";
 }
 
 export interface UpdatePollInput {
   title?: string;
-  description?: string;
+  description?: string | null;
+  options?: string[];
+  allowAnonymous?: boolean;
+  allowVoteChange?: boolean;
 }
 
 export type PollWebSocketMessage =

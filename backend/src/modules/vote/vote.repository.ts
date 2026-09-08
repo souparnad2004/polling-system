@@ -2,6 +2,7 @@ import { and, eq, or, sql } from "drizzle-orm";
 import { db } from "../../infrastructure/database/client.js";
 import { votes } from "../../infrastructure/database/schema/votes.js";
 import { pollOptions } from "../../infrastructure/database/schema/pollOptions.js";
+import { users } from "../../infrastructure/database/schema/users.js";
 
 export class VoteRepository {
     async create(input: {pollId: string; optionId: string; userId?: string; voterToken?: string}) {
@@ -47,8 +48,12 @@ export class VoteRepository {
         const result = await db.select({
             optionId: pollOptions.id,
             option: pollOptions.option,
-            voteCount: sql<number>`count(${votes.id})`
-        }).from(pollOptions).leftJoin(votes, eq(votes.optionId, pollOptions.id)).where(eq(pollOptions.pollId, pollId)).groupBy(pollOptions.id, pollOptions.option);
+            voteCount: sql<number>`count(${votes.id})`,
+            voters: sql<string[]>`coalesce(array_agg(${users.displayName}) filter (where ${users.displayName} is not null), '{}')`,
+        }).from(pollOptions)
+        .leftJoin(votes, eq(votes.optionId, pollOptions.id))
+        .leftJoin(users, eq(users.id, votes.userId))
+        .where(eq(pollOptions.pollId, pollId)).groupBy(pollOptions.id, pollOptions.option);
 
         return result;
     }

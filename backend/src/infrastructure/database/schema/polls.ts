@@ -15,6 +15,8 @@ export const polls = pgTable("polls", {
     // votes_poll_id_user_id_unique constraint. When true (default), anonymous
     // voterToken voting is allowed on a best-effort one-per-browser basis.
     allowAnonymous: boolean("allow_anonymous").notNull().default(true),
+    // When false, a submitted vote is final for the lifetime of the poll.
+    allowVoteChange: boolean("allow_vote_change").notNull().default(true),
     createdAt: timestamp("created_at", {withTimezone: true}).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", {withTimezone: true}).notNull().defaultNow().$onUpdate(() => new Date)
 },(t) => [

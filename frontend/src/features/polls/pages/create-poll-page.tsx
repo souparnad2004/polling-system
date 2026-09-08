@@ -9,14 +9,17 @@ import { CreatePollForm } from "../components/create-poll-form";
 export function CreatePollPage() {
   const router = useRouter();
 
-  function handleSuccess(pollId: string) {
+  function handleSuccess(_pollId: string, status: "draft" | "published") {
     toast.add({
       title: "Success",
-      description: "Poll created successfully",
+      description:
+        status === "published"
+          ? "Poll published successfully"
+          : "Poll saved as draft",
       type: "success",
     });
 
-    router.push(`/poll/${pollId}`);
+    router.replace("/polls/mine");
   }
 
   return (
