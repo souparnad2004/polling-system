@@ -38,6 +38,18 @@ export async function createVote(pollId: string, optionId: string) {
   return response.vote;
 }
 
+export async function changeVote(pollId: string, optionId: string) {
+  const response = await apiClient<{ vote: { id: string } }>(
+    `/api/polls/${pollId}/votes`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({ optionId }),
+    },
+  );
+
+  return response.vote;
+}
+
 export async function getPolls(): Promise<Poll[]> {
   const response = await apiClient<{ polls: Poll[] }>(`/api/polls`);
   return response.polls;

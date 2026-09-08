@@ -47,6 +47,7 @@ export function PollForm({ poll, onSuccess }: PollFormProps) {
           { text: "" },
         ],
       allowAnonymous: poll?.allowAnonymous ?? true,
+      allowVoteChange: poll?.allowVoteChange ?? true,
       status: "draft",
     },
   });
@@ -69,6 +70,7 @@ export function PollForm({ poll, onSuccess }: PollFormProps) {
         : data.description || undefined,
       options: data.options.map((option) => option.text),
       allowAnonymous: data.allowAnonymous,
+      allowVoteChange: data.allowVoteChange,
     };
 
     if (isEdit && poll) {
@@ -86,6 +88,7 @@ export function PollForm({ poll, onSuccess }: PollFormProps) {
       description: payload.description || undefined,
       options: payload.options,
       allowAnonymous: payload.allowAnonymous,
+      allowVoteChange: payload.allowVoteChange,
       status: data.status ?? "draft",
     });
     onSuccess(created.id, data.status ?? "draft");
@@ -111,6 +114,27 @@ export function PollForm({ poll, onSuccess }: PollFormProps) {
             {errors.title && (
               <p className="text-sm text-destructive">{errors.title.message}</p>
             )}
+          </div>
+
+          <div className="flex items-center justify-between gap-4">
+            <div className="space-y-1">
+              <Label htmlFor="allowVoteChange">Allow voters to change their vote</Label>
+              <p className="text-sm text-muted-foreground">
+                On by default. Turn this off for a strict one-chance vote where the first choice is final.
+              </p>
+            </div>
+
+            <Controller
+              control={control}
+              name="allowVoteChange"
+              render={({ field }) => (
+                <Switch
+                  id="allowVoteChange"
+                  checked={field.value ?? true}
+                  onCheckedChange={field.onChange}
+                />
+              )}
+            />
           </div>
 
           <div className="space-y-2">

@@ -75,7 +75,7 @@ export function EditPollPage({ pollId }: EditPollPageProps) {
       type: "success",
     });
 
-    router.push("/polls/mine");
+    router.replace("/polls/mine");
   }
 
   return (

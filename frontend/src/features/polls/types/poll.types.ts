@@ -10,6 +10,7 @@ export interface Poll {
   description?: string;
   status: "published" | "draft" | "closed";
   allowAnonymous?: boolean;
+  allowVoteChange?: boolean;
   options: PollOption[];
   voteCount?: number;
   authorName?: string | null;
@@ -66,6 +67,7 @@ export interface CreatePollInput {
   description?: string;
   options: string[];
   allowAnonymous?: boolean;
+  allowVoteChange?: boolean;
   status?: "draft" | "published";
 }
 
@@ -74,6 +76,7 @@ export interface UpdatePollInput {
   description?: string | null;
   options?: string[];
   allowAnonymous?: boolean;
+  allowVoteChange?: boolean;
 }
 
 export type PollWebSocketMessage =

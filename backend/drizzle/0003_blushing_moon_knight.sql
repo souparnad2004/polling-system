@@ -1,0 +1,1 @@
+ALTER TABLE "polls" ADD COLUMN "allow_vote_change" boolean DEFAULT true NOT NULL;

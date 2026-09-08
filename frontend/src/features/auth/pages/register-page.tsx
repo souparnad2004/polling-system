@@ -17,7 +17,7 @@ export function RegisterPage() {
       type: "success",
     });
 
-    router.push("/");
+    router.replace("/dashboard");
   }
 
   return (

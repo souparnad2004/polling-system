@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 import { useState } from "react";
 
@@ -58,20 +58,22 @@ function isStatusFilter(value: string | null): value is StatusFilter {
 }
 
 export function MyPollsPage() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const pollsQuery = usePolls();
   const [query, setQuery] = useState("");
+  const initialStatus = searchParams.get("status");
+  const [status, setStatusState] = useState<StatusFilter>(
+    isStatusFilter(initialStatus) ? initialStatus : "all",
+  );
   const [sort, setSort] = useState<SortFilter>("newest");
 
   // The ?status= query param is the single source of truth so the sidebar
   // links (Drafts / All / Published / Closed) and the toolbar Select stay in
   // sync with each other and survive refreshes.
-  const statusParam = searchParams.get("status");
-  const status: StatusFilter = isStatusFilter(statusParam) ? statusParam : "all";
-
   const setStatus = (next: StatusFilter) => {
-    const params = new URLSearchParams(searchParams.toString());
+    setStatusState(next);
+
+    const params = new URLSearchParams(window.location.search);
 
     if (next === "all") {
       params.delete("status");
@@ -80,9 +82,8 @@ export function MyPollsPage() {
     }
 
     const queryString = params.toString();
-    router.replace(queryString ? `/polls/mine?${queryString}` : "/polls/mine", {
-      scroll: false,
-    });
+    const nextUrl = queryString ? `/polls/mine?${queryString}` : "/polls/mine";
+    window.history.replaceState(window.history.state, "", nextUrl);
   };
 
   const polls = pollsQuery.data ?? [];

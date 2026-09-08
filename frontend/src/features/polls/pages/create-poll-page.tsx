@@ -19,7 +19,7 @@ export function CreatePollPage() {
       type: "success",
     });
 
-    router.push("/polls/mine");
+    router.replace("/polls/mine");
   }
 
   return (

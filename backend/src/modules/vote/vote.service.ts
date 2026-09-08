@@ -88,6 +88,8 @@ export class VoteService {
 
         if(poll.status !== "published") throw new ConflictError("Only published polls can be voted on");
 
+        if (!poll.allowVoteChange) throw new ConflictError("This poll allows only one final vote");
+
         this.assertVotingAllowed(poll, userId);
 
         const option = poll.options.find((option) => option.id === optionId);
@@ -121,6 +123,8 @@ export class VoteService {
         if(!poll) throw new NotFoundError("poll not found");
 
         if(poll.status !== "published") throw new ConflictError("Poll is not accepting voting changes");
+
+        if (!poll.allowVoteChange) throw new ConflictError("This poll allows only one final vote");
 
         this.assertVotingAllowed(poll, userId);
 

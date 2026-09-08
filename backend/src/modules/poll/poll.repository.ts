@@ -10,12 +10,13 @@ import { UpdatePollInput } from "./poll.schema.js";
 export type DatabaseTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 export class PollRepository  {
-    async createPoll(tx: DatabaseTransaction, input: {userId: string; title: string; description?: string; allowAnonymous?: boolean; status?: "draft" | "published"}) {
+    async createPoll(tx: DatabaseTransaction, input: {userId: string; title: string; description?: string; allowAnonymous?: boolean; allowVoteChange?: boolean; status?: "draft" | "published"}) {
         const [result] = await tx.insert(polls).values({
             userId: input.userId,
             title: input.title,
             description: input.description,
             allowAnonymous: input.allowAnonymous,
+            allowVoteChange: input.allowVoteChange,
             ...(input.status ? {status: input.status} : {}),
         }).returning();
 
@@ -45,6 +46,7 @@ export class PollRepository  {
             description: polls.description,
             status: polls.status,
             allowAnonymous: polls.allowAnonymous,
+            allowVoteChange: polls.allowVoteChange,
             createdAt: polls.createdAt,
             updatedAt: polls.updatedAt
         }).from(polls).where(eq(polls.id, pollId)).limit(1);
@@ -72,13 +74,14 @@ export class PollRepository  {
             description: polls.description,
             status: polls.status,
             allowAnonymous: polls.allowAnonymous,
+            allowVoteChange: polls.allowVoteChange,
             createdAt: polls.createdAt,
             updatedAt: polls.updatedAt,
             voteCount: sql<number>`count(${votes.id})::int`,
         }).from(polls)
             .leftJoin(votes, eq(votes.pollId, polls.id))
             .where(eq(polls.userId, userId))
-            .groupBy(polls.id, polls.userId, polls.title, polls.description, polls.status, polls.allowAnonymous, polls.createdAt, polls.updatedAt)
+            .groupBy(polls.id, polls.userId, polls.title, polls.description, polls.status, polls.allowAnonymous, polls.allowVoteChange, polls.createdAt, polls.updatedAt)
             .orderBy(desc(polls.createdAt));
 
         if (pollResults.length === 0) return [];
@@ -115,6 +118,7 @@ export class PollRepository  {
             description: polls.description,
             status: polls.status,
             allowAnonymous: polls.allowAnonymous,
+            allowVoteChange: polls.allowVoteChange,
             createdAt: polls.createdAt,
             updatedAt: polls.updatedAt,
             voteCount: sql<number>`count(${votes.id})::int`,
@@ -123,7 +127,7 @@ export class PollRepository  {
             .innerJoin(users, eq(users.id, polls.userId))
             .leftJoin(votes, eq(votes.pollId, polls.id))
             .where(eq(polls.status, "published"))
-            .groupBy(polls.id, polls.userId, polls.title, polls.description, polls.status, polls.allowAnonymous, polls.createdAt, polls.updatedAt, users.displayName)
+            .groupBy(polls.id, polls.userId, polls.title, polls.description, polls.status, polls.allowAnonymous, polls.allowVoteChange, polls.createdAt, polls.updatedAt, users.displayName)
             .orderBy(desc(sql`count(${votes.id})`), desc(polls.createdAt))
             .limit(limit);
 
@@ -155,12 +159,13 @@ export class PollRepository  {
         // Only metadata fields (title/description/allowAnonymous) live on the
         // polls row. When a request carries nothing but options, skip the
         // UPDATE entirely: an empty .set({}) would build invalid SQL.
-        if (input.title === undefined && input.description === undefined && input.allowAnonymous === undefined) return null;
+        if (input.title === undefined && input.description === undefined && input.allowAnonymous === undefined && input.allowVoteChange === undefined) return null;
 
         const result = await tx.update(polls).set({
             ...(input.title !== undefined && {title: input.title}),
             ...(input.description !== undefined && {description: input.description}),
             ...(input.allowAnonymous !== undefined && {allowAnonymous: input.allowAnonymous}),
+            ...(input.allowVoteChange !== undefined && {allowVoteChange: input.allowVoteChange}),
         }).where(eq(polls.id, pollId)).returning();
 
         return result[0] ?? null;

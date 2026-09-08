@@ -22,6 +22,13 @@
       "when": 1787926302130,
       "tag": "0002_greedy_doctor_strange",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1788886865743,
+      "tag": "0003_blushing_moon_knight",
+      "breakpoints": true
     }
   ]
 }
