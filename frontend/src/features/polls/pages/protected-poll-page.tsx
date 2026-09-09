@@ -18,7 +18,7 @@ export function ProtectedPollPage({ pollId }: ProtectedPollPageProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { data: currentUser } = useCurrentUser();
-  const { pollQuery, resultsQuery, vote } = usePollDetail(pollId);
+    const { pollQuery, resultsQuery, vote, removeVote } = usePollDetail(pollId);
 
   if (pollQuery.isLoading || resultsQuery.isLoading) {
     return <div className="mx-auto max-w-2xl p-6">Loading...</div>;
@@ -53,6 +53,7 @@ export function ProtectedPollPage({ pollId }: ProtectedPollPageProps) {
         poll={pollQuery.data}
         results={resultsQuery.data}
         onVote={vote}
+        onRemoveVote={removeVote}
       />
     </main>
   );

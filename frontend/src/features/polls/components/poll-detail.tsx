@@ -8,6 +8,7 @@ import {
   HourglassIcon,
   LoaderCircleIcon,
   LockIcon,
+  Trash2Icon,
   TrophyIcon,
   UsersIcon,
   VoteIcon,
@@ -30,6 +31,7 @@ interface PollDetailProps {
   poll: Poll;
   results: PollResults;
   onVote: (optionId: string, isChange?: boolean) => Promise<void>;
+  onRemoveVote: () => Promise<void>;
 }
 
 const STATUS_LABEL: Record<Poll["status"], string> = {
@@ -225,7 +227,7 @@ function VoteOption({
   );
 }
 
-export function PollDetail({ poll, results, onVote }: PollDetailProps) {
+export function PollDetail({ poll, results, onVote, onRemoveVote }: PollDetailProps) {
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
   const [isVoting, setIsVoting] = useState(false);
 
@@ -341,7 +343,7 @@ export function PollDetail({ poll, results, onVote }: PollDetailProps) {
     }
   }
 
-  async function handleVote() {
+    async function handleVote() {
     if (!selectedOption || isVoting) {
       return;
     }
@@ -364,6 +366,29 @@ export function PollDetail({ poll, results, onVote }: PollDetailProps) {
     } catch {
       // The mutation displays the API error. Keep the event handler resolved so
       // rejected vote requests do not appear as uncaught promise errors.
+    } finally {
+      setIsVoting(false);
+    }
+  }
+
+  async function handleRemoveVote() {
+    if (isVoting) {
+      return;
+    }
+
+    setIsVoting(true);
+
+    try {
+      await onRemoveVote();
+
+      setVotedState({ voted: false, optionId: null });
+      setSelectedOptionId(null);
+
+      try {
+        sessionStorage.removeItem(storageKey);
+      } catch {
+        // Ignore — state still updates.
+      }
     } finally {
       setIsVoting(false);
     }
@@ -499,7 +524,7 @@ export function PollDetail({ poll, results, onVote }: PollDetailProps) {
                         ) : (
                           <VoteIcon />
                         )}
-                        {isVoting ? "Submitting…" : "Cast vote"}
+                                                {isVoting ? "Submitting…" : hasVoted ? "Change vote" : "Cast vote"}
                       </Button>
                     </div>
                   ) : (
@@ -517,7 +542,7 @@ export function PollDetail({ poll, results, onVote }: PollDetailProps) {
                 </motion.div>
               )}
 
-              {hasVoted && poll.status === "published" && votedOption && (
+                             {hasVoted && poll.status === "published" && votedOption && (
                 <motion.div
                   key="vote-recorded"
                   initial={{ opacity: 0, y: 8 }}
@@ -530,7 +555,7 @@ export function PollDetail({ poll, results, onVote }: PollDetailProps) {
                     <CheckIcon className="size-3.5" strokeWidth={3} />
                   </span>
 
-                  <div className="space-y-0.5">
+                  <div className="flex flex-col gap-1 flex-1 min-w-0">
                     <p className="text-sm font-semibold">
                       Your vote has been recorded
                     </p>
@@ -544,6 +569,19 @@ export function PollDetail({ poll, results, onVote }: PollDetailProps) {
                         : ". You can change your choice while the poll is live; results update below in real time."}
                     </p>
                   </div>
+
+                  {poll.allowVoteChange !== false && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="shrink-0"
+                      disabled={isVoting}
+                      onClick={() => void handleRemoveVote()}
+                    >
+                      <Trash2Icon className="size-4" />
+                      Remove
+                    </Button>
+                  )}
                 </motion.div>
               )}
 

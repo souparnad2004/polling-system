@@ -8,6 +8,8 @@ export const createPollSchema = z.object({
     allowVoteChange: z.boolean().optional(),
     // "draft" (default) saves without publishing; "published" creates the poll
     // live immediately so voters can react to the shared link right away.
+    publishedAt: z.coerce.date().optional(),
+    closedAt: z.coerce.date().optional(),
     status: z.enum(["draft", "published"]).optional(),
 })
 
@@ -26,4 +28,10 @@ export const updatePollSchema = z.object({
 })
 
 export type UpdatePollInput = z.infer<typeof updatePollSchema>;
+
+export const publishPollSchema = z.object({
+    closedAt: z.coerce.date().refine((date) => date > new Date(), "closedAt must be in the future").optional(),
+});
+
+export type PublishPollInput = z.infer<typeof publishPollSchema>;
 

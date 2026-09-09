@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { PollService } from "./poll.service.js";
 import { UnauthorizedError } from "../../shared/errors/unauthorized-error.js";
-import type { CreatePollInput } from "./poll.schema.js";
+import type { CreatePollInput, PublishPollInput } from "./poll.schema.js";
 
 export function createPollController(pollService: PollService) {
     async function createPoll(req: Request, res: Response) {
@@ -60,7 +60,7 @@ export function createPollController(pollService: PollService) {
         const {pollId} = req.params;
         if(!req.user) throw new UnauthorizedError();
 
-        const publishedPoll = await pollService.publishPoll(pollId, req.user.id);
+        const publishedPoll = await pollService.publishPoll(pollId, req.user.id, req.body as PublishPollInput);
 
         res.status(200).json({
             publishedPoll

@@ -3,14 +3,17 @@ import { ConflictError } from "../../shared/errors/conflict-error.js";
 import { ForbiddenError } from "../../shared/errors/forbidden-error.js";
 import { NotFoundError } from "../../shared/errors/not-found-error.js";
 import { PollRepository } from "./poll.repository.js";
-import { CreatePollInput, UpdatePollInput } from "./poll.schema.js";
+import { CreatePollInput, PublishPollInput, UpdatePollInput } from "./poll.schema.js";
 
 export class PollService {
     constructor(private readonly pollRepository: PollRepository){}
 
     async createPoll(userId: string, input: CreatePollInput) {
+        const publishedAt = input.publishedAt ?? new Date();
+        if(input.status === "published" && input.closedAt && input.closedAt <= publishedAt) throw new ConflictError("closedAt must be after publishedAt");
+
         return db.transaction(async (tx) => {
-            const poll = await this.pollRepository.createPoll(tx, {userId, title: input.title, description: input.description, allowAnonymous: input.allowAnonymous, allowVoteChange: input.allowVoteChange, status: input.status});
+            const poll = await this.pollRepository.createPoll(tx, {userId, title: input.title, description: input.description, allowAnonymous: input.allowAnonymous, allowVoteChange: input.allowVoteChange, status: input.status, publishedAt: input.publishedAt, closedAt: input.closedAt});
             const options = await this.pollRepository.createOptions(tx, {options: input.options, pollId: poll.id});
             return {...poll, options}
         })
@@ -71,7 +74,7 @@ export class PollService {
     }
 
 
-    async publishPoll(pollId: string, userId: string) {
+    async publishPoll(pollId: string, userId: string, input: PublishPollInput = {}) {
         const poll = await this.pollRepository.findById(pollId);
 
         if(!poll) throw new NotFoundError("poll not found");
@@ -82,7 +85,7 @@ export class PollService {
 
         if(poll.options.length < 2 || poll.options.length > 10) throw new ConflictError("Poll must have between 2 and 10 options");
 
-        const published = await this.pollRepository.publishPoll(pollId);
+        const published = await this.pollRepository.publishPoll(pollId, input.closedAt);
 
         if(!published) throw new ConflictError("Poll could not be published");
 

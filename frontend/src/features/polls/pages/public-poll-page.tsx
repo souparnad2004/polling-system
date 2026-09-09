@@ -10,7 +10,7 @@ interface PublicPollPageProps {
 }
 
 export function PublicPollPage({ pollId }: PublicPollPageProps) {
-  const { pollQuery, resultsQuery, vote } = usePollDetail(pollId);
+    const { pollQuery, resultsQuery, vote, removeVote } = usePollDetail(pollId);
 
   if (pollQuery.isLoading || resultsQuery.isLoading) {
     return <div className="mx-auto max-w-2xl p-6">Loading...</div>;
@@ -43,6 +43,7 @@ export function PublicPollPage({ pollId }: PublicPollPageProps) {
         poll={pollQuery.data}
         results={resultsQuery.data}
         onVote={vote}
+        onRemoveVote={removeVote}
       />
     </main>
   );
