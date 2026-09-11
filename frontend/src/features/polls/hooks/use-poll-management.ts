@@ -6,11 +6,16 @@ import { toast } from "@/components/ui/toast";
 import { closePoll, deletePoll, publishPoll } from "../api/poll.api";
 import { pollKeys } from "./use-polls";
 
+export interface PublishPollInput {
+  pollId: string;
+  closedAt?: string;
+}
+
 export function usePublishPoll() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: publishPoll,
+    mutationFn: (input: PublishPollInput) => publishPoll(input),
     onSuccess: () => {
       toast.add({
         title: "Success",

@@ -11,10 +11,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 
+import { useState } from "react";
+
 import { useCreatePoll } from "../hooks/use-create-poll";
 import { useUpdatePoll } from "../hooks/use-update-poll";
 import { createPollSchema } from "../schemas/poll.schema";
-import type { Poll } from "../types/poll.types";
+import type { CreatePollInput, Poll } from "../types/poll.types";
+import { PublishPollDialog } from "./publish-poll-dialog";
 
 type PollFormData = z.infer<typeof createPollSchema>;
 
@@ -29,6 +32,8 @@ export function PollForm({ poll, onSuccess }: PollFormProps) {
   const isEdit = poll !== undefined;
   const createPollMutation = useCreatePoll();
   const updatePollMutation = useUpdatePoll();
+  const [isPublishDialogOpen, setPublishDialogOpen] = useState(false);
+  const [pendingCreate, setPendingCreate] = useState<Omit<CreatePollInput, "status" | "closedAt"> | null>(null);
 
   const {
     register,
@@ -83,19 +88,45 @@ export function PollForm({ poll, onSuccess }: PollFormProps) {
       return;
     }
 
+    if (data.status === "published") {
+      setPendingCreate({
+        title: data.title,
+        description: data.description || undefined,
+        options: data.options.map((option) => option.text),
+        allowAnonymous: data.allowAnonymous,
+        allowVoteChange: data.allowVoteChange,
+      });
+      setPublishDialogOpen(true);
+      return;
+    }
+
     const created = await createPollMutation.mutateAsync({
-      title: payload.title,
-      description: payload.description || undefined,
-      options: payload.options,
-      allowAnonymous: payload.allowAnonymous,
-      allowVoteChange: payload.allowVoteChange,
-      status: data.status ?? "draft",
+      title: data.title,
+      description: data.description || undefined,
+      options: data.options.map((option) => option.text),
+      allowAnonymous: data.allowAnonymous,
+      allowVoteChange: data.allowVoteChange,
+      status: "draft",
     });
-    onSuccess(created.id, data.status ?? "draft");
+    onSuccess(created.id, "draft");
+  }
+
+  async function confirmCreate(closedAt?: string) {
+    if (!pendingCreate) return;
+
+    const created = await createPollMutation.mutateAsync({
+      ...pendingCreate,
+      status: "published",
+      closedAt,
+    });
+    setPendingCreate(null);
+    setPublishDialogOpen(false);
+    onSuccess(created.id, "published");
   }
 
   return (
-    <Card className="mx-auto max-w-2xl">
+    <>
+      <Card className="mx-auto max-w-2xl">
       <CardHeader>
         <CardTitle>{isEdit ? "Edit poll" : "Create a poll"}</CardTitle>
       </CardHeader>
@@ -252,6 +283,13 @@ export function PollForm({ poll, onSuccess }: PollFormProps) {
           )}
         </form>
       </CardContent>
-    </Card>
+      </Card>
+      <PublishPollDialog
+        open={isPublishDialogOpen}
+        pending={createPollMutation.isPending}
+        onOpenChange={setPublishDialogOpen}
+        onConfirm={confirmCreate}
+      />
+    </>
   );
 }

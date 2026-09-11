@@ -50,6 +50,17 @@ export async function changeVote(pollId: string, optionId: string) {
   return response.vote;
 }
 
+export async function removeVote(pollId: string) {
+  const response = await apiClient<{ vote: { id: string } }>(
+    `/api/polls/${pollId}/votes`,
+    {
+      method: "DELETE",
+    },
+  );
+
+  return response.vote;
+}
+
 export async function getPolls(): Promise<Poll[]> {
   const response = await apiClient<{ polls: Poll[] }>(`/api/polls`);
   return response.polls;
@@ -84,11 +95,14 @@ export async function updatePoll(
   return response.updatedPoll;
 }
 
-export async function publishPoll(pollId: string): Promise<Poll> {
+export async function publishPoll(
+  input: { pollId: string; closedAt?: string },
+): Promise<Poll> {
   const response = await apiClient<{ publishedPoll: Poll }>(
-    `/api/polls/${pollId}/publish`,
+    `/api/polls/${input.pollId}/publish`,
     {
       method: "POST",
+      body: JSON.stringify({ closedAt: input.closedAt }),
     },
   );
 

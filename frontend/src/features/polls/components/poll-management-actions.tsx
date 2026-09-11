@@ -15,6 +15,7 @@ import {
 } from "../hooks/use-poll-management";
 import type { Poll } from "../types/poll.types";
 import { DeletePollDialog } from "./delete-poll-dialog";
+import { PublishPollDialog } from "./publish-poll-dialog";
 
 interface PollManagementActionsProps {
   poll: Poll;
@@ -31,6 +32,7 @@ export function PollManagementActions({
   const deleteMutation = useDeletePoll(onDeleted);
 
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isPublishDialogOpen, setPublishDialogOpen] = useState(false);
 
   const isPending =
     publishMutation.isPending ||
@@ -64,7 +66,7 @@ export function PollManagementActions({
             <Button
               className="w-full sm:w-auto cursor-pointer"
               disabled={isPending}
-              onClick={() => publishMutation.mutate(poll.id)}
+              onClick={() => setPublishDialogOpen(true)}
             >
               <SendIcon />
               Publish
@@ -101,6 +103,16 @@ export function PollManagementActions({
         open={isDeleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
         onConfirm={() => deleteMutation.mutate(poll.id)}
+      />
+      <PublishPollDialog
+        open={isPublishDialogOpen}
+        pending={publishMutation.isPending}
+        onOpenChange={setPublishDialogOpen}
+        onConfirm={(closedAt) => {
+          publishMutation.mutate({ pollId: poll.id, closedAt }, {
+            onSuccess: () => setPublishDialogOpen(false),
+          });
+        }}
       />
     </>
   );

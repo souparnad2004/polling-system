@@ -15,6 +15,8 @@ export interface Poll {
   voteCount?: number;
   authorName?: string | null;
   createdAt?: string;
+  publishedAt?: string;
+  closedAt?: string;
 }
 
 export interface PollAnalyticsTotals {
@@ -69,6 +71,7 @@ export interface CreatePollInput {
   allowAnonymous?: boolean;
   allowVoteChange?: boolean;
   status?: "draft" | "published";
+  closedAt?: string;
 }
 
 export interface UpdatePollInput {

@@ -41,6 +41,7 @@ import {
 } from "../hooks/use-poll-management";
 import type { Poll } from "../types/poll.types";
 import { DeletePollDialog } from "./delete-poll-dialog";
+import { PublishPollDialog } from "./publish-poll-dialog";
 
 const STATUS_VARIANT = {
   published: "default",
@@ -111,6 +112,7 @@ function PollRowActions({ poll }: { poll: Poll }) {
   const deleteMutation = useDeletePoll();
 
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isPublishDialogOpen, setPublishDialogOpen] = useState(false);
 
   const isPending =
     publishMutation.isPending ||
@@ -147,7 +149,7 @@ function PollRowActions({ poll }: { poll: Poll }) {
         {poll.status === "draft" && (
           <DropdownMenuItem
             disabled={isPending}
-            onClick={() => publishMutation.mutate(poll.id)}
+            onClick={() => setPublishDialogOpen(true)}
           >
             <SendIcon />
             Publish poll
@@ -200,6 +202,16 @@ function PollRowActions({ poll }: { poll: Poll }) {
         open={isDeleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
         onConfirm={() => deleteMutation.mutate(poll.id)}
+      />
+      <PublishPollDialog
+        open={isPublishDialogOpen}
+        pending={publishMutation.isPending}
+        onOpenChange={setPublishDialogOpen}
+        onConfirm={(closedAt) => {
+          publishMutation.mutate({ pollId: poll.id, closedAt }, {
+            onSuccess: () => setPublishDialogOpen(false),
+          });
+        }}
       />
     </>
   );

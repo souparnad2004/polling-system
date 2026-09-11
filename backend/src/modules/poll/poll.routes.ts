@@ -6,6 +6,7 @@ import { SessionService } from "../auth/session.service.js";
 import {
   createPollSchema,
   pollIdParamsSchema,
+  publishPollSchema,
   updatePollSchema,
 } from "./poll.schema.js";
 import { validate } from "../../shared/middlewares/validate.middleware.js";
@@ -58,6 +59,7 @@ export function createPollRouter({
   router.post(
     "/:pollId/publish",
     requireAuthentication,
+    validate(publishPollSchema),
     validate(pollIdParamsSchema, "params"),
     pollController.publishPoll,
   );

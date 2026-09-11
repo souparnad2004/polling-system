@@ -10,13 +10,15 @@ import { UpdatePollInput } from "./poll.schema.js";
 export type DatabaseTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 export class PollRepository  {
-    async createPoll(tx: DatabaseTransaction, input: {userId: string; title: string; description?: string; allowAnonymous?: boolean; allowVoteChange?: boolean; status?: "draft" | "published"}) {
+    async createPoll(tx: DatabaseTransaction, input: {userId: string; title: string; description?: string; allowAnonymous?: boolean; allowVoteChange?: boolean; status?: "draft" | "published"; publishedAt?: Date; closedAt?: Date}) {
         const [result] = await tx.insert(polls).values({
             userId: input.userId,
             title: input.title,
             description: input.description,
             allowAnonymous: input.allowAnonymous,
             allowVoteChange: input.allowVoteChange,
+            publishedAt: input.status === "published" ? (input.publishedAt ?? new Date()) : undefined,
+            closedAt: input.closedAt,
             ...(input.status ? {status: input.status} : {}),
         }).returning();
 
@@ -47,6 +49,8 @@ export class PollRepository  {
             status: polls.status,
             allowAnonymous: polls.allowAnonymous,
             allowVoteChange: polls.allowVoteChange,
+            publishedAt: polls.publishedAt,
+            closedAt: polls.closedAt,
             createdAt: polls.createdAt,
             updatedAt: polls.updatedAt
         }).from(polls).where(eq(polls.id, pollId)).limit(1);
@@ -62,6 +66,14 @@ export class PollRepository  {
             createdAt: pollOptions.createdAt,
             updatedAt: pollOptions.updatedAt
         }).from(pollOptions).where(eq(pollOptions.pollId, pollId)).orderBy(asc(pollOptions.position));
+
+        if (poll.status === "published" && poll.closedAt && poll.closedAt <= new Date()) {
+            await query.update(polls)
+                .set({status: "closed"})
+                .where(and(eq(polls.id, pollId), eq(polls.status, "published")));
+
+            return {...poll, status: "closed", options};
+        }
 
         return {...poll, options};
     }
@@ -175,14 +187,14 @@ export class PollRepository  {
         await tx.delete(pollOptions).where(eq(pollOptions.pollId, pollId));
     }
 
-    async publishPoll(pollId: string) {
-        const result = await db.update(polls).set({status: "published"}).where(and(eq(polls.id, pollId), eq(polls.status, "draft"))).returning();
+    async publishPoll(pollId: string, closedAt?: Date) {
+        const result = await db.update(polls).set({status: "published", publishedAt: new Date(), closedAt}).where(and(eq(polls.id, pollId), eq(polls.status, "draft"))).returning();
 
         return result[0] ?? null;
     }
 
     async closePoll(pollId: string) {
-        const result = await db.update(polls).set({status: "closed"}).where(and(eq(polls.id, pollId), eq(polls.status, "published"))).returning();
+        const result = await db.update(polls).set({status: "closed", closedAt: new Date()}).where(and(eq(polls.id, pollId), eq(polls.status, "published"))).returning();
 
         return result[0] ?? null;
     }

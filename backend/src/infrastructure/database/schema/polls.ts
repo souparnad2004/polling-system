@@ -17,6 +17,8 @@ export const polls = pgTable("polls", {
     allowAnonymous: boolean("allow_anonymous").notNull().default(true),
     // When false, a submitted vote is final for the lifetime of the poll.
     allowVoteChange: boolean("allow_vote_change").notNull().default(true),
+    publishedAt: timestamp("published_at", {withTimezone: true}),
+    closedAt: timestamp("closed_at", {withTimezone: true}),
     createdAt: timestamp("created_at", {withTimezone: true}).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", {withTimezone: true}).notNull().defaultNow().$onUpdate(() => new Date)
 },(t) => [
