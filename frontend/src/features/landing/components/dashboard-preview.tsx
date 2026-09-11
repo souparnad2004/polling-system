@@ -3,7 +3,6 @@
 import {
   ActivityIcon,
   BarChart3Icon,
-  BellIcon,
   MousePointerClickIcon,
   SearchIcon,
 } from "lucide-react";
@@ -94,10 +93,6 @@ export function DashboardPreview() {
           <div className="ml-auto flex items-center gap-1.5">
             <span className="flex size-8 items-center justify-center rounded-full text-muted-foreground">
               <SearchIcon className="size-4" />
-            </span>
-            <span className="relative flex size-8 items-center justify-center rounded-full text-muted-foreground">
-              <BellIcon className="size-4" />
-              <span className="absolute top-1 right-1 size-2 rounded-full bg-primary ring-2 ring-card" />
             </span>
             <Avatar size="sm">
               <AvatarFallback>AK</AvatarFallback>

@@ -39,12 +39,6 @@ const faqs = [
       "Yes. Close a poll at any time to stop accepting votes. Results stay visible, and the poll is marked as closed with a clear status badge.",
   },
   {
-    value: "comments",
-    question: "Can users comment on polls?",
-    answer:
-      "Yes. Poll pages include a discussion area where participants can comment and reply, so the conversation continues beyond the vote itself.",
-  },
-  {
     value: "analytics",
     question: "Can I see analytics for my polls?",
     answer:
