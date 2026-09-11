@@ -7,8 +7,9 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toast";
 
 export const metadata: Metadata = {
-  title: "Polling System",
-  description: "Create and participate in polls",
+  title: "Pollly — Create polls, see results live",
+  description:
+    "Pollly is a full-stack polling platform. Create a poll in seconds, share it anywhere, let anyone vote, and watch results update in real time.",
 };
 
 const themeScript = `(function () {

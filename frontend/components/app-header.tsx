@@ -1,6 +1,6 @@
 "use client"
 
-import { BarChart3Icon, BellIcon, SearchIcon } from "lucide-react"
+import { BarChart3Icon, SearchIcon } from "lucide-react"
 
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
@@ -51,25 +51,6 @@ export function AppHeader({ onFocusSearch }: AppHeaderProps) {
         )}
 
         <ThemeToggle />
-
-        <div className="relative">
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  aria-label="Notifications"
-                />
-              }
-            >
-              <BellIcon />
-            </TooltipTrigger>
-            <TooltipContent>Notifications</TooltipContent>
-          </Tooltip>
-          <span className="pointer-events-none absolute top-1.5 right-1.5 size-2 rounded-full bg-primary ring-2 ring-background" />
-        </div>
       </div>
     </header>
   )

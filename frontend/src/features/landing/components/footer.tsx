@@ -6,7 +6,7 @@ const columns = [
   {
     title: "Product",
     links: [
-      { label: "Explore", href: "/polls" },
+      { label: "Explore Polls", href: "/polls" },
       { label: "Create Poll", href: "/polls/create" },
       { label: "Dashboard", href: "/dashboard" },
       { label: "Analytics", href: "#analytics" },
@@ -18,23 +18,14 @@ const columns = [
       { label: "Live Results", href: "#live-results" },
       { label: "Anonymous Voting", href: "#features" },
       { label: "Poll Analytics", href: "#analytics" },
-      { label: "Discussions", href: "#features" },
+      { label: "Flexible Voting", href: "#features" },
     ],
   },
   {
     title: "Resources",
     links: [
-      { label: "Documentation", href: "/docs" },
       { label: "GitHub", href: "https://github.com/souparnad2004/polling-system" },
-      { label: "API", href: "/api" },
       { label: "Help", href: "#faq" },
-    ],
-  },
-  {
-    title: "Legal",
-    links: [
-      { label: "Privacy", href: "/privacy" },
-      { label: "Terms", href: "/terms" },
     ],
   },
 ];
@@ -43,7 +34,7 @@ export function Footer() {
   return (
     <footer className="border-t bg-muted/35">
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-        <div className="grid gap-10 lg:grid-cols-[1.4fr_repeat(4,1fr)]">
+        <div className="grid gap-10 lg:grid-cols-[1.4fr_repeat(3,1fr)]">
           <div className="max-w-xs">
             <Link href="/" className="flex items-center gap-2.5 font-heading font-semibold tracking-tight">
               <span className="flex size-8 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
@@ -87,7 +78,7 @@ export function Footer() {
 
         <div className="mt-12 flex flex-col gap-3 border-t pt-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} Pollly. All rights reserved.</p>
-          <p>Created for teams, classrooms, communities, and creators.</p>
+          <p>Built by Souparna Dhara.</p>
         </div>
       </div>
     </footer>

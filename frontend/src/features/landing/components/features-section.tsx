@@ -1,6 +1,5 @@
 import {
   BarChart3Icon,
-  BellIcon,
   CompassIcon,
   GitBranchIcon,
   RadioIcon,
@@ -48,19 +47,13 @@ const features = [
     icon: SlidersHorizontalIcon,
     title: "Flexible Voting Controls",
     description:
-      "Single-choice voting, change and remove votes, anonymous mode, and result visibility controls per poll.",
-  },
-  {
-    icon: BellIcon,
-    title: "Notifications",
-    description:
-      "Stay informed when polls receive activity, comments, milestones, or status updates.",
+      "Single-choice voting with anonymous mode, plus optional vote changing or removal on every poll.",
   },
   {
     icon: CompassIcon,
     title: "Search and Discovery",
     description:
-      "Discover interesting public polls, search by keyword, filter results, and browse categories.",
+      "Discover trending public polls and search them by keyword to find new conversations.",
   },
 ];
 
@@ -72,7 +65,7 @@ export function FeaturesSection() {
           <SectionHeading
             eyebrow="Features"
             title="Everything a polling platform needs, without the clutter."
-            description="From a quick team poll to community-wide discussions — Pollly covers the full lifecycle of collecting and understanding opinions."
+            description="From a quick decision among friends to a large community vote, Pollly covers the full journey of collecting and understanding opinions."
           />
         </FadeIn>
 
