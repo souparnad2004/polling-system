@@ -1,5 +1,7 @@
 # Pollly
 
+**Version 1.0** · full-stack polling platform · built by Souparna Dhara
+
 Pollly is a full-stack polling application. Users can create polls, publish
 them, collect votes, and view results through a Next.js frontend backed by a
 TypeScript/Express API and PostgreSQL database.
@@ -199,11 +201,12 @@ responses, and error formats.
 
 ## Current Status
 
-The core MVP flow is implemented: a user can register, log in, create and
-manage polls, vote, and see live results. The repository is still under active
-development. Remaining work includes completing the edit-draft experience,
-polishing public voting state and sharing UX, expanding automated test coverage,
-and completing final mobile and error-state polish.
+**Version 1.0** — the core MVP flow is implemented and the application is ready
+for deployment: a user can register, log in, create and manage polls, vote, and
+see live results. The repository is still under active development; planned
+follow-up work includes completing the edit-draft experience, polishing public
+voting and sharing UX, expanding automated test coverage, and finishing mobile
+and error-state polish.
 
 Architecture decisions and the detailed implementation roadmap are documented
 in [docs/decisions.md](docs/decisions.md) and [docs/roadmap.md](docs/roadmap.md).
