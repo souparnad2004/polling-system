@@ -207,6 +207,3 @@ see live results. The repository is still under active development; planned
 follow-up work includes completing the edit-draft experience, polishing public
 voting and sharing UX, expanding automated test coverage, and finishing mobile
 and error-state polish.
-
-Architecture decisions and the detailed implementation roadmap are documented
-in [docs/decisions.md](docs/decisions.md) and [docs/roadmap.md](docs/roadmap.md).
